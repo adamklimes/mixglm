@@ -1,2 +1,2 @@
 # mixglm
-R package for modelling ecosystem resilience using mixture regression models
+R package for mixtures of generalized linear models and tools to estimate ecosystem resilience using these models 

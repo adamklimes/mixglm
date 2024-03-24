@@ -1,4 +1,5 @@
 ## 1. ------ DEFINE A LIST OF DISTRIBUTIONS AND CONSTANTS ------
+#' @import nimble
 ### 1.1. ==== Initialise the distribution list ====
 # Initialise a list of distributions that are defined in this file.  Note that the distributions are not
 # registered just yet (that is done at the end of the source file).

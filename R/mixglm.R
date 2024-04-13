@@ -82,20 +82,20 @@ setBUGSVariableName <- function(inName) {
 #'
 #' @return A list containing the following components:
 #' \itemize{
-#' \item{\code{modelText}}{A character scalar containing the text of the model specification in
+#' \item{\code{modelText}}{ A character scalar containing the text of the model specification in
 #' the NIMBLE BUGS dialect}
-#' \item{\code{modelCode}}{A \code{nimbleCode} object containing the model specification}
-#' \item{\code{constants}}{A list containing the constants to be provided to NIMBLE}
-#' \item{\code{data}}{A list containing the data to be provided to NIMBLE}
-#' \item{\code{errorModel}}{A factor containing the error model used for the specification of
+#' \item{\code{modelCode}}{ A \code{nimbleCode} object containing the model specification}
+#' \item{\code{constants}}{ A list containing the constants to be provided to NIMBLE}
+#' \item{\code{data}}{ A list containing the data to be provided to NIMBLE}
+#' \item{\code{errorModel}}{ A factor containing the error model used for the specification of
 #' the error distribution for the response variable}
-#' \item{\code{linkFunction}}{A factor containing the link function used in the specification
+#' \item{\code{linkFunction}}{ A factor containing the link function used in the specification
 #' of the mixture model}
-#' \item{\code{initialValues}}{A list containing potential initial values for each of the stochastic
+#' \item{\code{initialValues}}{ A list containing potential initial values for each of the stochastic
 #' nodes in the NIMBLE model specification}
 #' }
 #'
-#' @author Joseph D. Chipperfield, Adam Klimes \email{joechip90@@googlemail.com}
+#' @author Joseph D. Chipperfield \email{joechip90@@googlemail.com}, Adam Klimes
 #' @keywords internal
 #'
 mixglmSpecification <- function(
@@ -608,8 +608,8 @@ mixglmSpecification <- function(
   )
 }
 
-### 1.2. ==== Check of initial values and generating new ones if necessary ====
-#' @title Check of initial values for mixglm and generating new ones if necessary
+### 1.2. ==== Check initial values and generate new ones if necessary ====
+#' @title Check initial values for mixglm and generate new ones if necessary
 #'
 #' @description This function checks initial values for mixglm and if they are illegitimate, it tries
 #' to generate new ones.
@@ -736,13 +736,13 @@ checkInit <- function(stateValModels, statePrecModels, inputData, setInit,
 #' @return A list containg a vector of simulated values for each stochastic node.  In addition the
 #' following elements are appended to the list:
 #' \itemize{
-#' \item{\code{linStateVal}}{A matrix containing the predicted response variable values at each row
+#' \item{\code{linStateVal}}{ A matrix containing the predicted response variable values at each row
 #' of the input covariate data.frame.  Each column represents the predicted response variable value
 #' for each mixture component}
-#' \item{\code{linStatePrec}}{A matrix containing the predicted precision of the response variable
+#' \item{\code{linStatePrec}}{ A matrix containing the predicted precision of the response variable
 #' at each row of the input covariate data.frame.  Each column represents the predicted
 #' precision of the response variable value for each mixture component}
-#' \item{\code{linStateProb}}{A matrix containing the probability of each mixture component existing
+#' \item{\code{linStateProb}}{ A matrix containing the probability of each mixture component existing
 #' at each row of the input covariate data.frame.  Each column represents the probability of each
 #' mixture component existing}
 #' }
@@ -897,24 +897,24 @@ mixglmSimulation <- function(
 #'
 #' @return A list containing the following components:
 #' \itemize{
-#' \item{\code{mcmcSamples}}{An \link[coda]{mcmc} object if \code{mcmcChains == 1} or \link[coda]{mcmc.list}
+#' \item{\code{mcmcSamples}}{ An \link[coda]{mcmc} object if \code{mcmcChains == 1} or \link[coda]{mcmc.list}
 #' object if \code{mcmcChains > 1} containing the sampled values}
-#' \item{\code{compiledModel}}{An R interface object containing an interface for the compiled NIMBLE model.
+#' \item{\code{compiledModel}}{ An R interface object containing an interface for the compiled NIMBLE model.
 #' This is the same output as the \link[nimble]{compileNimble} function applied to the model object}
-#' \item{\code{modelText}}{A character scalar containing the text of the model specification in
+#' \item{\code{modelText}}{ A character scalar containing the text of the model specification in
 #' the NIMBLE BUGS dialect}
-#' \item{\code{modelCode}}{A \code{nimbleCode} object containing the model specification}
-#' \item{\code{constants}}{A list containing the constants provided to NIMBLE}
-#' \item{\code{data}}{A list containing the data provided to NIMBLE}
-#' \item{\code{errorModel}}{A factor containing the error model used for the specification of
+#' \item{\code{modelCode}}{ A \code{nimbleCode} object containing the model specification}
+#' \item{\code{constants}}{ A list containing the constants provided to NIMBLE}
+#' \item{\code{data}}{ A list containing the data provided to NIMBLE}
+#' \item{\code{errorModel}}{ A factor containing the error model used for the specification of
 #' the error distribution for the response variable}
-#' \item{\code{linkFunction}}{A factor containing the link function used in the specification
+#' \item{\code{linkFunction}}{ A factor containing the link function used in the specification
 #' of the mixture model}
-#' \item{\code{initialValues}}{A list containing potential initial values used for each of the stochastic
+#' \item{\code{initialValues}}{ A list containing potential initial values used for each of the stochastic
 #' nodes in the NIMBLE model specification}
 #' }
 #'
-#' @author Joseph D. Chipperfield, Adam Klimes \email{joechip90@@googlemail.com}
+#' @author Joseph D. Chipperfield \email{joechip90@@googlemail.com}, Adam Klimes
 #' @examples \dontrun{
 #' set.seed(10)
 #' n <- 200
@@ -1003,6 +1003,22 @@ mixglm <- function(
 #' @param ... additional arguments passed to \link[graphics]{plot}
 #'
 #' @author Adam Klimes
+#' @examples \dontrun{
+#' set.seed(10)
+#' n <- 200
+#' x <- rnorm(n)
+#' group <- rbinom(n, 1, 0.5)
+#' y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+#' plot(y ~ x)
+#' dat <- data.frame(x, y)
+#'
+#' mod <- mixglm(
+#'   stateValModels = y ~ x,
+#'   stateProbModels = ~ x,
+#'   statePrecModels = ~ x,
+#'   inputData = dat,
+#'   numStates = 2)
+#' plot(mod)}
 #' @export
 #'
 plot.mixglm <- function(x, form = NULL, byChains = TRUE, transCol = TRUE,
@@ -1126,6 +1142,25 @@ plot.mixglm <- function(x, form = NULL, byChains = TRUE, transCol = TRUE,
 #' a data.frame is returned for each chain.
 #'
 #' @author Adam Klimes
+#' @examples \dontrun{
+#' set.seed(10)
+#' n <- 200
+#' x <- rnorm(n)
+#' group <- rbinom(n, 1, 0.5)
+#' y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+#' plot(y ~ x)
+#' dat <- data.frame(x, y)
+#'
+#' mod <- mixglm(
+#'   stateValModels = y ~ x,
+#'   stateProbModels = ~ x,
+#'   statePrecModels = ~ x,
+#'   inputData = dat,
+#'   numStates = 2)
+#' summary(mod)
+#'
+#' # random samples of parameters from posterior distribution
+#' summary(mod, randomSample = 5)}
 #' @export
 #'
 summary.mixglm <- function(object, byChains = FALSE, digit = 4L,
@@ -1177,16 +1212,37 @@ summary.mixglm <- function(object, byChains = FALSE, digit = 4L,
 #'
 #' @return A list containing the following components:
 #' \itemize{
-#' \item{\code{sampledResp}}{A numeric vector of samples along response variable}
-#' \item{\code{probCurves}}{A data frame of stability curves for each observation}
-#' \item{\code{tipStable}}{A list of data.frames for each observation with all
+#' \item{\code{sampledResp}}{ A numeric vector of samples along response variable}
+#' \item{\code{probCurves}}{ A data frame of stability curves for each observation}
+#' \item{\code{tipStable}}{ A list of data.frames for each observation with all
 #' stable states and tipping points, their scaled probability density and response
-#' variable value, if they are stable states, and if their satisfy the threshold}
-#' \item{\code{obsDat}}{A data frame containing values of response variable, potential energy,
+#' variable value, whether they are stable states, and whether their satisfy the threshold}
+#' \item{\code{obsDat}}{ A data frame containing values of response variable, potential energy,
 #' distance to closest tipping point and stable state for each observation}
 #' }
 #'
 #' @author Adam Klimes
+#' @examples \dontrun{
+#' set.seed(10)
+#' n <- 200
+#' x <- rnorm(n)
+#' group <- rbinom(n, 1, 0.5)
+#' y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+#' plot(y ~ x)
+#' dat <- data.frame(x, y)
+#'
+#' mod <- mixglm(
+#'   stateValModels = y ~ x,
+#'   stateProbModels = ~ x,
+#'   statePrecModels = ~ x,
+#'   inputData = dat,
+#'   numStates = 2)
+#' predict(mod)
+#'
+#' # predict for newdata
+#' pre <- predict(mod, newdata = data.frame(x = c(0.5, 1), y = c(0.3, 0.2)))
+#' plot(pre$sampledResp, pre$probCurves$X1, type = "l")
+#' plot(pre$sampledResp, pre$probCurves$X2, type = "l")}
 #' @export
 #'
 predict.mixglm <- function(object, newdata = NULL, samples = 1000, threshold = 0.2, ...){
@@ -1362,12 +1418,12 @@ findMin <- function(x, extremes = TRUE){
 #'
 #' @return A list containing the following components:
 #' \itemize{
-#' \item{\code{tipStable}}{A list of lists of dataframes with
+#' \item{\code{tipStable}}{ A list of lists of dataframes with
 #'   tipping points (state == 0) and stable states (state == 1), categorized
 #'   based on satifying the threshold (catSt == 1), with their scaled [0-1]
 #'   probability density and response variable value}
-#' \item{\code{mats}}{array of stability landscapes}
-#' \item{\code{matsSt}}{list of scaled stability landscapes}}
+#' \item{\code{mats}}{ An array of stability landscapes}
+#' \item{\code{matsSt}}{ A list of scaled stability landscapes}}
 #'
 #' @author Adam Klimes
 #' @keywords internal
@@ -1450,19 +1506,41 @@ getMinMax <- function(slices, threshold = 0.0){
 #' @param getParsD logical value indicating if the output should be parameters
 #' of distributions instead of the slice. Requires \code{doPlot} to be \code{FALSE}
 #'
-#' @return A list containing the following components:
+#' @return Returns invisibly a list containing the following components:
 #' \itemize{
-#' \item{\code{chainX}}{One or more items of a matrix of probability density
+#' \item{\code{chainX}}{ One or more items of a matrix of probability density
 #' values along the response with a column for each \code{value}. One item is
 #' returned if \code{byChains} is not \code{TRUE}, otherwise one item for each
 #' chain. If \code{getParsD} is \code{TRUE}, parameters for probability density
 #' distributions are returned instead.}
-#' \item{\code{densFun}}{If \code{getParsD} is \code{TRUE}, function for
+#' \item{\code{densFun}}{ If \code{getParsD} is \code{TRUE}, function for
 #' calculation of probability density is returned.}
-#' \item{\code{resp}}{A vector of response values for which stability curves are
+#' \item{\code{resp}}{ A vector of response values for which stability curves are
 #' evaluated}}
 #'
 #' @author Adam Klimes
+#' @examples \dontrun{
+#' set.seed(10)
+#' n <- 200
+#' x <- rnorm(n)
+#' group <- rbinom(n, 1, 0.5)
+#' y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+#' plot(y ~ x)
+#' dat <- data.frame(x, y)
+#'
+#' mod <- mixglm(
+#'   stateValModels = y ~ x,
+#'   stateProbModels = ~ x,
+#'   statePrecModels = ~ x,
+#'   inputData = dat,
+#'   numStates = 2)
+#' sliceMixglm(mod, value = 1)
+#'
+#' # plot including observations around x == 1
+#' sliceMixglm(mod, value = 1, addEcos = TRUE)
+#'
+#' # plot 5 random samples from posterior distribution
+#' sliceMixglm(mod, value = 1, randomSample = 5, byChain = FALSE)}
 #' @export
 #'
 sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
@@ -1596,17 +1674,37 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
 #' @param addMinMax logical value indicating if stable states and tipping points
 #' should be visualized
 #' @param randomSample integer specifying how many random samples from posterior
-#' distribution to take instead of mean. Use \code{"NULL"} for mean.
+#' distribution to take instead of mean. Use \code{"NULL"} for mean. Plots instead
+#' standard deviation of probability density of these samples.
 #' @param otherPreds named vector of values of predictors not specified by form.
 #' Default are zeros
 #' @param eqiCol vector of colors of length 2 specifying colors for stable states
 #' and tipping points respectively
 #' @param ... parameters passed to \link[graphics]{image}
 #'
-#' @return Returns a list with scaled probability density matrix
+#' @return Returns invisibly a list with scaled probability density matrix
 #' (for each \code{randomSample}).
 #'
 #' @author Adam Klimes
+#' @examples \dontrun{
+#' set.seed(10)
+#' n <- 200
+#' x <- rnorm(n)
+#' group <- rbinom(n, 1, 0.5)
+#' y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+#' plot(y ~ x)
+#' dat <- data.frame(x, y)
+#'
+#' mod <- mixglm(
+#'   stateValModels = y ~ x,
+#'   stateProbModels = ~ x,
+#'   statePrecModels = ~ x,
+#'   inputData = dat,
+#'   numStates = 2)
+#' landscapeMixglm(mod)
+#'
+#' # uncertainty and stable states and tipping points for random samples
+#' landscapeMixglm(mod, randomSample = 10)}
 #' @export
 #'
 landscapeMixglm <- function(mod, form = NULL, threshold = 0, addPoints = TRUE,
@@ -1668,12 +1766,31 @@ landscapeMixglm <- function(mod, form = NULL, threshold = 0, addPoints = TRUE,
 #'
 #' @param mod an object of class "mixglm"
 #' @param n number of generated values per predictor value(s)
-#' @param newdata dataframe of predictor values to be predicted for.
+#' @param newdata data.frame of predictor values to be predicted for.
 #'   If not provided, prediction is done for modelled data.
 #'
 #' @return A matrix with a column for each \code{n}
 #'
 #' @author Adam Klimes
+#' @examples \dontrun{
+#' set.seed(10)
+#' n <- 200
+#' x <- rnorm(n)
+#' group <- rbinom(n, 1, 0.5)
+#' y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+#' plot(y ~ x)
+#' dat <- data.frame(x, y)
+#'
+#' mod <- mixglm(
+#'   stateValModels = y ~ x,
+#'   stateProbModels = ~ x,
+#'   statePrecModels = ~ x,
+#'   inputData = dat,
+#'   numStates = 2)
+#' rMixglm(mod, n = 3)
+#'
+#' # for newdata
+#' rMixglm(mod, n = 3, newdata = data.frame(x = c(0, 0.5)))}
 #' @export
 #'
 rMixglm <- function(mod, n = 1, newdata = NULL){

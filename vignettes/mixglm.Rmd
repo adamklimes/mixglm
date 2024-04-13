@@ -1,0 +1,40 @@
+---
+title: "Mixture models with mixglm"
+author: "Adam Klimes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{mixglm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+This vignette shows an example how to fit models using mixglm package, how to process model outputs, and how to visualize the results.
+
+We start by generating two variables:
+```{r dataset}
+set.seed(10)
+n <- 200
+x <- rnorm(n)
+group <- rbinom(n, 1, 0.5)
+y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+dat <- data.frame(x, y)
+plot(y ~ x, data = dat)
+```
+
+To fit a mixture model, we need to specify three sub-models, first for mean values of mixture components, second for their precision, and the third for their probability. We also need to specify number of components in the mixture. In this example, we use two components and make their mean, precision, and probability all dependent on x.
+```{r model}
+library(mixglm)
+library(nimble)
+#mod <- mixglm(
+#  stateValModels = y ~ x,
+#  stateProbModels = ~ x,
+#  statePrecModels = ~ x,
+#  inputData = dat,
+#  numStates = 2)
+# TO BE FINISHED
+```

@@ -30,7 +30,8 @@ importance of visualized stable states and tipping points}
 should be visualized}
 
 \item{randomSample}{integer specifying how many random samples from posterior
-distribution to take instead of mean. Use \code{"NULL"} for mean.}
+distribution to take instead of mean. Use \code{"NULL"} for mean. Plots instead
+standard deviation of probability density of these samples.}
 
 \item{otherPreds}{named vector of values of predictors not specified by form.
 Default are zeros}
@@ -41,11 +42,32 @@ and tipping points respectively}
 \item{...}{parameters passed to \link[graphics]{image}}
 }
 \value{
-Returns a list with scaled probability density matrix
+Returns invisibly a list with scaled probability density matrix
 (for each \code{randomSample}).
 }
 \description{
 This function plots stability landscape for given predictor
+}
+\examples{
+\dontrun{
+set.seed(10)
+n <- 200
+x <- rnorm(n)
+group <- rbinom(n, 1, 0.5)
+y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+plot(y ~ x)
+dat <- data.frame(x, y)
+
+mod <- mixglm(
+  stateValModels = y ~ x,
+  stateProbModels = ~ x,
+  statePrecModels = ~ x,
+  inputData = dat,
+  numStates = 2)
+landscapeMixglm(mod)
+
+# uncertainty and stable states and tipping points for random samples
+landscapeMixglm(mod, randomSample = 10)}
 }
 \author{
 Adam Klimes

@@ -57,20 +57,44 @@ distribution to take instead of summary. Use \code{"NULL"} for summary.}
 of distributions instead of the slice. Requires \code{doPlot} to be \code{FALSE}}
 }
 \value{
-A list containing the following components:
+Returns invisibly a list containing the following components:
 \itemize{
-\item{\code{chainX}}{One or more items of a matrix of probability density
+\item{\code{chainX}}{ One or more items of a matrix of probability density
 values along the response with a column for each \code{value}. One item is
 returned if \code{byChains} is not \code{TRUE}, otherwise one item for each
 chain. If \code{getParsD} is \code{TRUE}, parameters for probability density
 distributions are returned instead.}
-\item{\code{densFun}}{If \code{getParsD} is \code{TRUE}, function for
+\item{\code{densFun}}{ If \code{getParsD} is \code{TRUE}, function for
 calculation of probability density is returned.}
-\item{\code{resp}}{A vector of response values for which stability curves are
+\item{\code{resp}}{ A vector of response values for which stability curves are
 evaluated}}
 }
 \description{
 This function plots probability density for given predictor value
+}
+\examples{
+\dontrun{
+set.seed(10)
+n <- 200
+x <- rnorm(n)
+group <- rbinom(n, 1, 0.5)
+y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+plot(y ~ x)
+dat <- data.frame(x, y)
+
+mod <- mixglm(
+  stateValModels = y ~ x,
+  stateProbModels = ~ x,
+  statePrecModels = ~ x,
+  inputData = dat,
+  numStates = 2)
+sliceMixglm(mod, value = 1)
+
+# plot including observations around x == 1
+sliceMixglm(mod, value = 1, addEcos = TRUE)
+
+# plot 5 random samples from posterior distribution
+sliceMixglm(mod, value = 1, randomSample = 5, byChain = FALSE)}
 }
 \author{
 Adam Klimes

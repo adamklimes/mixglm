@@ -62,16 +62,16 @@ states.}
 \value{
 A list containing the following components:
 \itemize{
-\item{\code{modelText}}{A character scalar containing the text of the model specification in
+\item{\code{modelText}}{ A character scalar containing the text of the model specification in
 the NIMBLE BUGS dialect}
-\item{\code{modelCode}}{A \code{nimbleCode} object containing the model specification}
-\item{\code{constants}}{A list containing the constants to be provided to NIMBLE}
-\item{\code{data}}{A list containing the data to be provided to NIMBLE}
-\item{\code{errorModel}}{A factor containing the error model used for the specification of
+\item{\code{modelCode}}{ A \code{nimbleCode} object containing the model specification}
+\item{\code{constants}}{ A list containing the constants to be provided to NIMBLE}
+\item{\code{data}}{ A list containing the data to be provided to NIMBLE}
+\item{\code{errorModel}}{ A factor containing the error model used for the specification of
 the error distribution for the response variable}
-\item{\code{linkFunction}}{A factor containing the link function used in the specification
+\item{\code{linkFunction}}{ A factor containing the link function used in the specification
 of the mixture model}
-\item{\code{initialValues}}{A list containing potential initial values for each of the stochastic
+\item{\code{initialValues}}{ A list containing potential initial values for each of the stochastic
 nodes in the NIMBLE model specification}
 }
 }
@@ -81,6 +81,6 @@ of a mixture model and generates a set of structures
 for initialisation of a NIMBLE model
 }
 \author{
-Joseph D. Chipperfield, Adam Klimes \email{joechip90@googlemail.com}
+Joseph D. Chipperfield \email{joechip90@googlemail.com}, Adam Klimes
 }
 \keyword{internal}

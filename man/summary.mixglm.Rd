@@ -39,6 +39,27 @@ a data.frame is returned for each chain.
 This function calculates posterior quantiles of parameters of
 a mixture model across all chains or for each chain separately
 }
+\examples{
+\dontrun{
+set.seed(10)
+n <- 200
+x <- rnorm(n)
+group <- rbinom(n, 1, 0.5)
+y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+plot(y ~ x)
+dat <- data.frame(x, y)
+
+mod <- mixglm(
+  stateValModels = y ~ x,
+  stateProbModels = ~ x,
+  statePrecModels = ~ x,
+  inputData = dat,
+  numStates = 2)
+summary(mod)
+
+# random samples of parameters from posterior distribution
+summary(mod, randomSample = 5)}
+}
 \author{
 Adam Klimes
 }

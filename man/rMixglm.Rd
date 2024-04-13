@@ -11,7 +11,7 @@ rMixglm(mod, n = 1, newdata = NULL)
 
 \item{n}{number of generated values per predictor value(s)}
 
-\item{newdata}{dataframe of predictor values to be predicted for.
+\item{newdata}{data.frame of predictor values to be predicted for.
 If not provided, prediction is done for modelled data.}
 }
 \value{
@@ -19,6 +19,27 @@ A matrix with a column for each \code{n}
 }
 \description{
 Random generation of response variable from identified mixture model
+}
+\examples{
+\dontrun{
+set.seed(10)
+n <- 200
+x <- rnorm(n)
+group <- rbinom(n, 1, 0.5)
+y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+plot(y ~ x)
+dat <- data.frame(x, y)
+
+mod <- mixglm(
+  stateValModels = y ~ x,
+  stateProbModels = ~ x,
+  statePrecModels = ~ x,
+  inputData = dat,
+  numStates = 2)
+rMixglm(mod, n = 3)
+
+# for newdata
+rMixglm(mod, n = 3, newdata = data.frame(x = c(0, 0.5)))}
 }
 \author{
 Adam Klimes

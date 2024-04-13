@@ -48,6 +48,24 @@ lines for small standard deviation visible)}
 This function plots results of a mixture model on the
 current graphical device.
 }
+\examples{
+\dontrun{
+set.seed(10)
+n <- 200
+x <- rnorm(n)
+group <- rbinom(n, 1, 0.5)
+y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+plot(y ~ x)
+dat <- data.frame(x, y)
+
+mod <- mixglm(
+  stateValModels = y ~ x,
+  stateProbModels = ~ x,
+  statePrecModels = ~ x,
+  inputData = dat,
+  numStates = 2)
+plot(mod)}
+}
 \author{
 Adam Klimes
 }

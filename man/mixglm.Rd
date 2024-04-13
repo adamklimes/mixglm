@@ -80,20 +80,20 @@ mixture components.}
 \value{
 A list containing the following components:
 \itemize{
-\item{\code{mcmcSamples}}{An \link[coda]{mcmc} object if \code{mcmcChains == 1} or \link[coda]{mcmc.list}
+\item{\code{mcmcSamples}}{ An \link[coda]{mcmc} object if \code{mcmcChains == 1} or \link[coda]{mcmc.list}
 object if \code{mcmcChains > 1} containing the sampled values}
-\item{\code{compiledModel}}{An R interface object containing an interface for the compiled NIMBLE model.
+\item{\code{compiledModel}}{ An R interface object containing an interface for the compiled NIMBLE model.
 This is the same output as the \link[nimble]{compileNimble} function applied to the model object}
-\item{\code{modelText}}{A character scalar containing the text of the model specification in
+\item{\code{modelText}}{ A character scalar containing the text of the model specification in
 the NIMBLE BUGS dialect}
-\item{\code{modelCode}}{A \code{nimbleCode} object containing the model specification}
-\item{\code{constants}}{A list containing the constants provided to NIMBLE}
-\item{\code{data}}{A list containing the data provided to NIMBLE}
-\item{\code{errorModel}}{A factor containing the error model used for the specification of
+\item{\code{modelCode}}{ A \code{nimbleCode} object containing the model specification}
+\item{\code{constants}}{ A list containing the constants provided to NIMBLE}
+\item{\code{data}}{ A list containing the data provided to NIMBLE}
+\item{\code{errorModel}}{ A factor containing the error model used for the specification of
 the error distribution for the response variable}
-\item{\code{linkFunction}}{A factor containing the link function used in the specification
+\item{\code{linkFunction}}{ A factor containing the link function used in the specification
 of the mixture model}
-\item{\code{initialValues}}{A list containing potential initial values used for each of the stochastic
+\item{\code{initialValues}}{ A list containing potential initial values used for each of the stochastic
 nodes in the NIMBLE model specification}
 }
 }
@@ -120,5 +120,5 @@ mod <- mixglm(
 plot(mod)}
 }
 \author{
-Joseph D. Chipperfield, Adam Klimes \email{joechip90@googlemail.com}
+Joseph D. Chipperfield \email{joechip90@googlemail.com}, Adam Klimes
 }

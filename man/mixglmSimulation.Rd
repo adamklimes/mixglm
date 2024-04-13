@@ -57,13 +57,13 @@ simulation.}
 A list containg a vector of simulated values for each stochastic node.  In addition the
 following elements are appended to the list:
 \itemize{
-\item{\code{linStateVal}}{A matrix containing the predicted response variable values at each row
+\item{\code{linStateVal}}{ A matrix containing the predicted response variable values at each row
 of the input covariate data.frame.  Each column represents the predicted response variable value
 for each mixture component}
-\item{\code{linStatePrec}}{A matrix containing the predicted precision of the response variable
+\item{\code{linStatePrec}}{ A matrix containing the predicted precision of the response variable
 at each row of the input covariate data.frame.  Each column represents the predicted
 precision of the response variable value for each mixture component}
-\item{\code{linStateProb}}{A matrix containing the probability of each mixture component existing
+\item{\code{linStateProb}}{ A matrix containing the probability of each mixture component existing
 at each row of the input covariate data.frame.  Each column represents the probability of each
 mixture component existing}
 }

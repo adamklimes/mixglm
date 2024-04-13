@@ -23,18 +23,41 @@ should be marked as considerable}
 \value{
 A list containing the following components:
 \itemize{
-\item{\code{sampledResp}}{A numeric vector of samples along response variable}
-\item{\code{probCurves}}{A data frame of stability curves for each observation}
-\item{\code{tipStable}}{A list of data.frames for each observation with all
+\item{\code{sampledResp}}{ A numeric vector of samples along response variable}
+\item{\code{probCurves}}{ A data frame of stability curves for each observation}
+\item{\code{tipStable}}{ A list of data.frames for each observation with all
 stable states and tipping points, their scaled probability density and response
-variable value, if they are stable states, and if their satisfy the threshold}
-\item{\code{obsDat}}{A data frame containing values of response variable, potential energy,
+variable value, whether they are stable states, and whether their satisfy the threshold}
+\item{\code{obsDat}}{ A data frame containing values of response variable, potential energy,
 distance to closest tipping point and stable state for each observation}
 }
 }
 \description{
 This function calculates stability curves and resilience metrics based
 on a mixture model
+}
+\examples{
+\dontrun{
+set.seed(10)
+n <- 200
+x <- rnorm(n)
+group <- rbinom(n, 1, 0.5)
+y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+plot(y ~ x)
+dat <- data.frame(x, y)
+
+mod <- mixglm(
+  stateValModels = y ~ x,
+  stateProbModels = ~ x,
+  statePrecModels = ~ x,
+  inputData = dat,
+  numStates = 2)
+predict(mod)
+
+# predict for newdata
+pre <- predict(mod, newdata = data.frame(x = c(0.5, 1), y = c(0.3, 0.2)))
+plot(pre$sampledResp, pre$probCurves$X1, type = "l")
+plot(pre$sampledResp, pre$probCurves$X2, type = "l")}
 }
 \author{
 Adam Klimes

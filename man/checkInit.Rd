@@ -2,7 +2,7 @@
 % Please edit documentation in R/mixglm.R
 \name{checkInit}
 \alias{checkInit}
-\title{Check of initial values for mixglm and generating new ones if necessary}
+\title{Check initial values for mixglm and generate new ones if necessary}
 \usage{
 checkInit(
   stateValModels,

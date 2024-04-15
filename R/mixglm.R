@@ -3,6 +3,7 @@
 #' @importFrom graphics abline axTicks axis box image lines par points segments text
 #' @importFrom stats as.formula coef dbeta dgamma dnbinom dnorm formula gaussian model.frame model.matrix model.response pnorm quantile rbeta rbinom rgamma rnbinom rnorm sd setNames terms
 #' @importFrom utils head str tail
+#' @import nimble
 #'
 ### 1.1. ==== Change Variable Names to BUGS-Friendly Versions ====
 #' @title Change Variable Names to BUGS-Friendly Versions

@@ -27,14 +27,33 @@ plot(y ~ x, data = dat)
 ```
 
 To fit a mixture model, we need to specify three sub-models, first for mean values of mixture components, second for their precision, and the third for their probability. We also need to specify number of components in the mixture. In this example, we use two components and make their mean, precision, and probability all dependent on x.
-```{r model}
+```{r model, message=FALSE, warning=FALSE}
 library(mixglm)
-library(nimble)
-#mod <- mixglm(
-#  stateValModels = y ~ x,
-#  stateProbModels = ~ x,
-#  statePrecModels = ~ x,
-#  inputData = dat,
-#  numStates = 2)
-# TO BE FINISHED
+mod <- mixglm(
+  stateValModels = y ~ x,
+  stateProbModels = ~ x,
+  statePrecModels = ~ x,
+  inputData = dat,
+  numStates = 2)
+```
+
+We can explore the results by printing the model object or its summary (to see percentiles of posterior distribution of individual parameters).
+```{r exploration}
+# mod
+summary(mod)
+```
+
+To visualize the results, we can use the plot function which creates scatterplot of our data with mean value and standard deviation for each component of the mixture. This is complemented by probability of each component along predictor in the upper part of the figure.
+```{r visualization}
+plot(mod)
+```
+
+To get the stability landscape with stable states and tipping points, we use landscapeMixglm function. Heatplot with higher probability density in reddish colour is produced and stable states are highlighted by blue lines, tipping points by red lines.
+```{r landscape}
+landscapeMixglm(mod)
+```
+
+To explore stability curves for specific predictor values (i.e., effectively making vertical cuts though the stability landscape we just saw), we use the sliceMixglm function (mean values for each component of the mixture are highlighted by dashed vertical lines).
+```{r slice}
+sliceMixglm(mod, value = 1)
 ```

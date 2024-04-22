@@ -749,6 +749,25 @@ checkInit <- function(stateValModels, statePrecModels, inputData, setInit,
 #' }
 #'
 #' @author Joseph D. Chipperfield, \email{joechip90@@googlemail.com}
+#' @examples {
+#' dat <- data.frame(x = rnorm(200), y = rnorm(200))
+#' cfValues <- list(
+#'   "intercept_stateVal" = c(-1.0, 0.5, 0.5),
+#'   "x_stateVal" = c(-0.05, 0.05, 0.1),
+#'   "intercept_stateProb" = c(NA, -1.0, 1.0),
+#'   "intercept_statePrec" = c(0.5, 1.0, 1.5)
+#'  )
+#'  mixglmSimulation(
+#'    numSims = 1,
+#'    stateValModels = y ~ x,
+#'    stateProbModels = ~ 1,
+#'    statePrecModels = ~ 1,
+#'    inputData = dat,
+#'    numStates = 2,
+#'    stateValError = gaussian,
+#'    coefficientValues = cfValues
+#'  )
+#' }
 #' @export
 #'
 mixglmSimulation <- function(

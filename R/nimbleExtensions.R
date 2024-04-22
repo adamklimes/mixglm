@@ -4,7 +4,7 @@
 ## 3.1.1. dbetabin density function ----
 #' @title Probability Density of the Beta-Binomial Distribution ----
 #'
-#' @description Calcualte the probability density of the beta-binomial distribution.
+#' @description Calculate the probability density of the beta-binomial distribution.
 #'
 #' @param x A scalar integer containing the value to calculate a density for
 #' @param shape1 A scalar value containing the first shape parameter of the composite
@@ -55,7 +55,7 @@ dbetabin <- nimbleFunction(
 ## 3.1.2. dbetabin simulation function ----
 #' @title Probability Density of the Beta-Binomial Distribution ----
 #'
-#' @description Generate a varibale from the beta-binomial distribution.
+#' @description Generate a variable from the beta-binomial distribution.
 #'
 #' @param n A scalar integer containing the number of variables to simulate (NIMBLE
 #' currently only allows n = 1)
@@ -99,20 +99,18 @@ rbetabin <- nimbleFunction(
   }
 )
 
-### 3.2. ==== Create NIMBLE functions for the ecosystem-state value distribution (normal error) ====
+### 3.2. ==== Create NIMBLE functions for the mixture model (normal error) ====
 ## 3.2.1. dnormStateValueMembership density function ----
-#' @title Probability Density of an Ecosystem-State Value Distribution (Normal Error)
+#' @title Probability Density of a response variable from Gaussian mixture (Normal Error)
 #'
-#' @description Calculate the probability density of an ecosystem-state value distribution with a
-#' normal error distribution for the ecosystem state variable.
+#' @description Calculate the probability density of a response variable from Gaussian mixture.
 #'
-#' @param x A scalar value containing the value of the ecosystem state variable
-#' @param stateVal A numeric vector containing the mean values of the ecosystem state variable
-#' associated with each alternative stable state
+#' @param x A scalar value containing the value of response variable
+#' @param stateVal A numeric vector containing the mean values of the mixture components
 #' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the
-#' error of the ecosystem state variable associated with each alternative stable state
-#' @param stateProb A numeric vector containing the probabilities of being in each ecosystem stable
-#' state (internally normalised to one)
+#' mixture components
+#' @param stateProb A numeric vector containing the probabilities of belonging
+#' to each mixture component (internally normalised to one)
 #' @param log If \code{TRUE} then return the log density
 #'
 #' @return A scalar containing the probability density
@@ -133,7 +131,7 @@ dnormStateValueMembership <- nimbleFunction(
     # Retrieve the number of states in the model
     numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
     if(numStates < 2) {
-      stop("invalid number of states (there must be at least two stable states)")
+      stop("invalid number of mixture components (there must be at least two)")
     }
     # Recycle the input vector if neccessary and check to ensure the values are valid
     inStateVal <- stateVal#parameterTest_vectorDouble(stateVal, numeric(length = 2, value = c(-maxDouble(), maxDouble())), integer(length = 1, value = numStates), 1)
@@ -155,21 +153,19 @@ dnormStateValueMembership <- nimbleFunction(
   }
 )
 ## 3.2.2. dnormStateValueMembership simulation function ----
-#' @title Simulate a Variable from an Ecosystem-State Value Distribution (Normal Error)
+#' @title Simulate a Variable from a Gaussian mixture (Normal Error)
 #'
-#' @description Simulate a variable according to an ecosystem-state value distribution with a
-#' normal error distribution for the ecosystem state variable.
+#' @description Simulate a variable from a Gaussian mixture.
 #'
 #' @param n An integer scalar containing the number of variables to simulate (NIMBLE currently
 #' only allows n = 1)
-#' @param stateVal A numeric vector containing the mean values of the ecosystem state variable
-#' associated with each alternative stable state
-#' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the
-#' error of the ecosystem state variable associated with each alternative stable state
-#' @param stateProb A numeric vector containing the probabilities of being in each ecosystem stable
-#' state (internally normalised to one)
+#' @param stateVal A numeric vector containing the mean values of mixture components
+#' @param statePrec A numeric vector containing the precision (reciprocal of the
+#' variance) of the mixture components
+#' @param stateProb A numeric vector containing the probabilities of belonging
+#' to each mixture component (internally normalised to one)
 #'
-#' @return A scalar containing the simulated ecosystem state variable
+#' @return A scalar containing the simulated response variable
 #'
 #' @author Joseph D. Chipperfield, \email{joechip90@@googlemail.com}
 #' @export
@@ -186,7 +182,7 @@ rnormStateValueMembership <- nimbleFunction(
     # Retrieve the number of states in the model
     numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
     if(numStates < 2) {
-      stop("invalid number of states (there must be at least two stable states)")
+      stop("invalid number of mixture components (there must be at least two)")
     }
     # Ensure that only one sample is requested
     if(n <= 0) {
@@ -205,20 +201,18 @@ rnormStateValueMembership <- nimbleFunction(
   }
 )
 
-### 3.3. ==== Create NIMBLE functions for the ecosystem-state value distribution (gamma error) ====
+### 3.3. ==== Create NIMBLE functions for the mixture model (gamma error) ====
 ## 3.3.1. dgammaStateValueMembership density function ----
-#' @title Probability Density of an Ecosystem-State Value Distribution (Gamma Error)
+#' @title Probability Density of a response variable from gamma mixture (Gamma Error)
 #'
-#' @description Calculate the probability density of an ecosystem-state value distribution with a
-#' gamma error distribution for the ecosystem state variable.
+#' @description Calculate the probability density of a response variable from gamma mixture.
 #'
-#' @param x A scalar value containing the value of the ecosystem state variable
-#' @param stateVal A numeric vector containing the mean values of the ecosystem state variable
-#' associated with each alternative stable state
-#' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the
-#' error of the ecosystem state variable associated with each alternative stable state
-#' @param stateProb A numeric vector containing the probabilities of being in each ecosystem stable
-#' state (internally normalised to one)
+#' @param x A scalar value containing the value of response variable
+#' @param stateVal A numeric vector containing the mean values of mixture components
+#' @param statePrec A numeric vector containing the precision (reciprocal of the
+#' variance) of the mixture components
+#' @param stateProb A numeric vector containing the probabilities of belonging
+#' to each mixture component (internally normalised to one)
 #' @param log If \code{TRUE} then return the log density
 #'
 #' @return A scalar containing the probability density
@@ -239,7 +233,7 @@ dgammaStateValueMembership <- nimbleFunction(
     # Retrieve the number of states in the model
     numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
     if(numStates < 2) {
-      stop("invalid number of states (there must be at least two stable states)")
+      stop("invalid number of mixture components (there must be at least two)")
     }
     # Recycle the input vector if neccessary and check to ensure the values are valid
     inStateVal <- stateVal#parameterTest_vectorDouble(stateVal, numeric(length = 2, value = c(minNonZeroDouble(), maxDouble())), integer(length = 1, value = numStates), 1)
@@ -265,21 +259,19 @@ dgammaStateValueMembership <- nimbleFunction(
   }
 )
 ## 3.3.2. dgammaStateValueMembership simulation function ----
-#' @title Simulate a Variable from an Ecosystem-State Value Distribution (Gamma Error)
+#' @title Simulate a Variable from a gamma mixture (Gamma Error)
 #'
-#' @description Simulate a variable according to an ecosystem-state value distribution with a
-#' gamma error distribution for the ecosystem state variable.
+#' @description Simulate a variable from a gamma mixture.
 #'
 #' @param n An integer scalar containing the number of variables to simulate (NIMBLE currently
 #' only allows n = 1)
-#' @param stateVal A numeric vector containing the mean values of the ecosystem state variable
-#' associated with each alternative stable state
-#' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the
-#' error of the ecosystem state variable associated with each alternative stable state
-#' @param stateProb A numeric vector containing the probabilities of being in each ecosystem stable
-#' state (internally normalised to one)
+#' @param stateVal A numeric vector containing the mean values of the mixture components
+#' @param statePrec A numeric vector containing the precision (reciprocal of the
+#' variance) of the mixture components
+#' @param stateProb A numeric vector containing the probabilities of belonging
+#' to each mixture component (internally normalised to one)
 #'
-#' @return A scalar containing the simulated ecosystem state variable
+#' @return A scalar containing the simulated response variable
 #'
 #' @author Joseph D. Chipperfield, \email{joechip90@@googlemail.com}
 #' @export
@@ -296,7 +288,7 @@ rgammaStateValueMembership <- nimbleFunction(
     # Retrieve the number of states in the model
     numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
     if(numStates < 2) {
-      stop("invalid number of states (there must be at least two stable states)")
+      stop("invalid number of mixture components (there must be at least two)")
     }
     # Ensure that only one sample is requested
     if(n <= 0) {
@@ -318,20 +310,18 @@ rgammaStateValueMembership <- nimbleFunction(
   }
 )
 
-### 3.4. ==== Create NIMBLE functions for the ecosystem-state value distribution (beta error) ====
+### 3.4. ==== Create NIMBLE functions for the beta mixture (beta error) ====
 ## 3.4.1. dbetaStateValueMembership density function ----
-#' @title Probability Density of an Ecosystem-State Value Distribution (Beta Error)
+#' @title Probability Density of a response variable from beta mixture (Beta Error)
 #'
-#' @description Calculate the probability density of an ecosystem-state value distribution with a
-#' beta error distribution for the ecosystem state variable.
+#' @description Calculate the probability density of a response variable from beta mixture.
 #'
-#' @param x A scalar value containing the value of the ecosystem state variable
-#' @param stateVal A numeric vector containing the mean values of the ecosystem state variable
-#' associated with each alternative stable state
-#' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the
-#' error of the ecosystem state variable associated with each alternative stable state
-#' @param stateProb A numeric vector containing the probabilities of being in each ecosystem stable
-#' state (internally normalised to one)
+#' @param x A scalar value containing the value of the response variable
+#' @param stateVal A numeric vector containing the mean values of the mixture components
+#' @param statePrec A numeric vector containing the precision (reciprocal of the
+#' variance) of the mixture components
+#' @param stateProb A numeric vector containing the probabilities of belonging
+#' to each mixture component (internally normalised to one)
 #' @param log If \code{TRUE} then return the log density
 #'
 #' @return A scalar containing the probability density
@@ -352,7 +342,7 @@ dbetaStateValueMembership <- nimbleFunction(
     # Retrieve the number of states in the model
     numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
     if(numStates < 2) {
-      stop("invalid number of states (there must be at least two stable states)")
+      stop("invalid number of mixture components (there must be at least two)")
     }
     # Recycle the input vector if neccessary and check to ensure the values are valid
     inStateVal <- stateVal#parameterTest_vectorDouble(stateVal, numeric(length = 2, value = c(minNonZeroDouble(), 1.0 - minNonZeroDouble())), integer(length = 1, value = numStates), 1)
@@ -377,21 +367,19 @@ dbetaStateValueMembership <- nimbleFunction(
   }
 )
 ## 3.4.2. dbetaStateValueMembership simulation function ----
-#' @title Simulate a Variable from an Ecosystem-State Value Distribution (Beta Error)
+#' @title Simulate a Variable from a beta mixture (Beta Error)
 #'
-#' @description Simulate a variable according to an ecosystem-state value distribution with a
-#' beta error distribution for the ecosystem state variable.
+#' @description Simulate a variable from a beta mixture.
 #'
 #' @param n An integer scalar containing the number of variables to simulate (NIMBLE currently
 #' only allows n = 1)
-#' @param stateVal A numeric vector containing the mean values of the ecosystem state variable
-#' associated with each alternative stable state
-#' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the
-#' error of the ecosystem state variable associated with each alternative stable state
-#' @param stateProb A numeric vector containing the probabilities of being in each ecosystem stable
-#' state (internally normalised to one)
+#' @param stateVal A numeric vector containing the mean values of the mixture components
+#' @param statePrec A numeric vector containing the precision (reciprocal of the
+#' variance) of the mixture components
+#' @param stateProb A numeric vector containing the probabilities of belonging
+#' to each mixture component (internally normalised to one)
 #'
-#' @return A scalar containing the simulated ecosystem state variable
+#' @return A scalar containing the simulated response variable
 #'
 #' @author Joseph D. Chipperfield, \email{joechip90@@googlemail.com}
 #' @export
@@ -408,7 +396,7 @@ rbetaStateValueMembership <- nimbleFunction(
     # Retrieve the number of states in the model
     numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
     if(numStates < 2) {
-      stop("invalid number of states (there must be at least two stable states)")
+      stop("invalid number of mixture components (there must be at least two)")
     }
     # Ensure that only one sample is requested
     if(n <= 0) {
@@ -430,20 +418,18 @@ rbetaStateValueMembership <- nimbleFunction(
   }
 )
 
-### 3.5. ==== Create NIMBLE functions for the ecosystem-state value distribution (negative binomial error) ====
+### 3.5. ==== Create NIMBLE functions for the negative binomial mixture (negative binomial error) ====
 ## 3.5.1. dnegbinStateValueMembership density function ----
-#' @title Probability Density of an Ecosystem-State Value Distribution (Negative Binomial Error)
+#' @title Probability Density of a response variable from negative binomial mixture (Negative Binomial Error)
 #'
-#' @description Calculate the probability density of an ecosystem-state value distribution with a
-#' negative binomial error distribution for the ecosystem state variable.
+#' @description Calculate the probability density of a response variable from negative binomial mixture.
 #'
-#' @param x A scalar value containing the value of the ecosystem state variable
-#' @param stateVal A numeric vector containing the mean values of the ecosystem state variable
-#' associated with each alternative stable state
-#' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the
-#' error of the ecosystem state variable associated with each alternative stable state
-#' @param stateProb A numeric vector containing the probabilities of being in each ecosystem stable
-#' state (internally normalised to one)
+#' @param x A scalar value containing the value of the response variable
+#' @param stateVal A numeric vector containing the mean values of the mixture components
+#' @param statePrec A numeric vector containing the precision (reciprocal of the
+#' variance) of the mixture components
+#' @param stateProb A numeric vector containing the probabilities of belonging
+#' to each mixture component (internally normalised to one)
 #' @param log If \code{TRUE} then return the log density
 #'
 #' @return A scalar containing the probability density
@@ -464,9 +450,9 @@ dnegbinStateValueMembership <- nimbleFunction(
     # Retrieve the number of states in the model
     numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
     if(numStates < 2) {
-      stop("invalid number of states (there must be at least two stable states)")
+      stop("invalid number of mixture components (there must be at least two)")
     }
-    # Recycle the input vector if neccessary and check to ensure the values are valid
+    # Recycle the input vector if necessary and check to ensure the values are valid
     inStateVal <- stateVal#parameterTest_vectorDouble(stateVal, numeric(length = 2, value = c(minNonZeroDouble(), maxDouble())), integer(length = 1, value = numStates), 1)
     inStatePrec <- statePrec#parameterTest_vectorDouble(statePrec, numeric(length = 2, value = c(minNonZeroDouble(), maxDouble())), integer(length = 1, value = numStates), 1)
     inStateProb <- stateProb#parameterTest_vectorDouble(stateProb, numeric(length = 2, value = c(0.0, maxDouble())), integer(length = 1, value = numStates), 1)
@@ -501,21 +487,19 @@ dnegbinStateValueMembership <- nimbleFunction(
   }
 )
 ## 3.5.2. dnegbinStateValueMembership simulation function ----
-#' @title Simulate a Variable from an Ecosystem-State Value Distribution (Negative Binomial Error)
+#' @title Simulate a Variable from a negative binomial mixture (Negative Binomial Error)
 #'
-#' @description Simulate a variable according to an ecosystem-state value distribution with a
-#' negative binomial error distribution for the ecosystem state variable.
+#' @description Simulate a variable from negative binomial mixture.
 #'
 #' @param n An integer scalar containing the number of variables to simulate (NIMBLE currently
 #' only allows n = 1)
-#' @param stateVal A numeric vector containing the mean values of the ecosystem state variable
-#' associated with each alternative stable state
-#' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the
-#' error of the ecosystem state variable associated with each alternative stable state
-#' @param stateProb A numeric vector containing the probabilities of being in each ecosystem stable
-#' state (internally normalised to one)
+#' @param stateVal A numeric vector containing the mean values of the mixture components
+#' @param statePrec A numeric vector containing the precision (reciprocal of the
+#' variance) of the mixture components
+#' @param stateProb A numeric vector containing the probabilities of belonging
+#' to each mixture component (internally normalised to one)
 #'
-#' @return A scalar containing the simulated ecosystem state variable
+#' @return A scalar containing the simulated response variable
 #'
 #' @author Joseph D. Chipperfield, \email{joechip90@@googlemail.com}
 #' @export
@@ -532,7 +516,7 @@ rnegbinStateValueMembership <- nimbleFunction(
     # Retrieve the number of states in the model
     numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
     if(numStates < 2) {
-      stop("invalid number of states (there must be at least two stable states)")
+      stop("invalid number of mixture components (there must be at least two)")
     }
     # Ensure that only one sample is requested
     if(n <= 0) {
@@ -558,20 +542,17 @@ rnegbinStateValueMembership <- nimbleFunction(
   }
 )
 
-### 3.6. ==== Create NIMBLE functions for the ecosystem-state value distribution (beta-binomial error) ====
+### 3.6. ==== Create NIMBLE functions for the beta-binomial mixture (beta-binomial error) ====
 ## 3.6.1. dbetabinStateValueMembership density function ----
-#' @title Probability Density of an Ecosystem-State Value Distribution (Beta-Binomial Error)
+#' @title Probability Density of a response variable from beta-binomial mixture (Beta-Binomial Error)
 #'
-#' @description Calculate the probability density of an ecosystem-state value distribution with a
-#' beta-binomial error distribution for the ecosystem state variable.
+#' @description Calculate the probability density of a response variable from beta-binomial mixture.
 #'
-#' @param x A scalar value containing the value of the ecosystem state variable
-#' @param stateVal A numeric vector containing the mean values of the ecosystem state variable
-#' associated with each alternative stable state
-#' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the
-#' error of the ecosystem state variable associated with each alternative stable state
-#' @param stateProb A numeric vector containing the probabilities of being in each ecosystem stable
-#' state (internally normalised to one)
+#' @param x A scalar value containing the value of the response variable
+#' @param stateVal A numeric vector containing the mean values of the mixture components
+#' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the mixture components
+#' @param stateProb A numeric vector containing the probabilities of belonging
+#' to each mixture component (internally normalised to one)
 #' @param numTrials A scalar containing the number of trials
 #' @param log If \code{TRUE} then return the log density
 #'
@@ -594,7 +575,7 @@ dbetabinStateValueMembership <- nimbleFunction(
     # Retrieve the number of states in the model
     numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
     if(numStates < 2) {
-      stop("invalid number of states (there must be at least two stable states)")
+      stop("invalid number of mixture components (there must be at least two)")
     }
     # Recycle the input vector if neccessary and check to ensure the values are valid
     inStateVal <- stateVal#parameterTest_vectorDouble(stateVal, numeric(length = 2, value = c(minNonZeroDouble(), maxDouble())), integer(length = 1, value = numStates), 1)
@@ -628,22 +609,19 @@ dbetabinStateValueMembership <- nimbleFunction(
   }
 )
 ## 3.6.2. dbetabinStateValueMembership simulation function ----
-#' @title Simulate a Variable from an Ecosystem-State Value Distribution (Beta-Binomial Error)
+#' @title Simulate a Variable from a beta-binomial mixture (Beta-Binomial Error)
 #'
-#' @description Simulate a variable according to an ecosystem-state value distribution with a
-#' beta-binomial error distribution for the ecosystem state variable.
+#' @description Simulate a variable from a beta-binomial mixture.
 #'
 #' @param n An integer scalar containing the number of variables to simulate (NIMBLE currently
 #' only allows n = 1)
-#' @param stateVal A numeric vector containing the mean values of the ecosystem state variable
-#' associated with each alternative stable state
-#' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the
-#' error of the ecosystem state variable associated with each alternative stable state
-#' @param stateProb A numeric vector containing the probabilities of being in each ecosystem stable
-#' state (internally normalised to one)
+#' @param stateVal A numeric vector containing the mean values of the mixture components
+#' @param statePrec A numeric vector containing the precision (reciprocal of the variance) of the mixture components
+#' @param stateProb A numeric vector containing the probabilities of belonging
+#' to each mixture component (internally normalised to one)
 #' @param numTrials A scalar containing the number of trials
 #'
-#' @return A scalar containing the simulated ecosystem state variable
+#' @return A scalar containing the simulated response variable
 #'
 #' @author Joseph D. Chipperfield, \email{joechip90@@googlemail.com}
 #' @export
@@ -661,7 +639,7 @@ rbetabinStateValueMembership <- nimbleFunction(
     # Retrieve the number of states in the model
     numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
     if(numStates < 2) {
-      stop("invalid number of states (there must be at least two stable states)")
+      stop("invalid number of mixture components (there must be at least two)")
     }
     # Ensure that only one sample is requested
     if(n <= 0) {

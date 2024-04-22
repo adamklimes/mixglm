@@ -2,21 +2,20 @@
 % Please edit documentation in R/nimbleExtensions.R
 \name{dbetaStateValueMembership}
 \alias{dbetaStateValueMembership}
-\title{Probability Density of an Ecosystem-State Value Distribution (Beta Error)}
+\title{Probability Density of a response variable from beta mixture (Beta Error)}
 \usage{
 dbetaStateValueMembership(x, stateVal, statePrec, stateProb, log = 0)
 }
 \arguments{
-\item{x}{A scalar value containing the value of the ecosystem state variable}
+\item{x}{A scalar value containing the value of the response variable}
 
-\item{stateVal}{A numeric vector containing the mean values of the ecosystem state variable
-associated with each alternative stable state}
+\item{stateVal}{A numeric vector containing the mean values of the mixture components}
 
-\item{statePrec}{A numeric vector containing the precision (reciprocal of the variance) of the
-error of the ecosystem state variable associated with each alternative stable state}
+\item{statePrec}{A numeric vector containing the precision (reciprocal of the
+variance) of the mixture components}
 
-\item{stateProb}{A numeric vector containing the probabilities of being in each ecosystem stable
-state (internally normalised to one)}
+\item{stateProb}{A numeric vector containing the probabilities of belonging
+to each mixture component (internally normalised to one)}
 
 \item{log}{If \code{TRUE} then return the log density}
 }
@@ -24,8 +23,7 @@ state (internally normalised to one)}
 A scalar containing the probability density
 }
 \description{
-Calculate the probability density of an ecosystem-state value distribution with a
-beta error distribution for the ecosystem state variable.
+Calculate the probability density of a response variable from beta mixture.
 }
 \author{
 Joseph D. Chipperfield, \email{joechip90@googlemail.com}

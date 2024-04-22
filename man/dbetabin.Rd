@@ -24,7 +24,7 @@ binomial distribution}
 A scalar containing the probability density
 }
 \description{
-Calcualte the probability density of the beta-binomial distribution.
+Calculate the probability density of the beta-binomial distribution.
 }
 \author{
 Joseph D. Chipperfield, \email{joechip90@googlemail.com}

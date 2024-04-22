@@ -2,7 +2,7 @@
 % Please edit documentation in R/nimbleExtensions.R
 \name{rbetabinStateValueMembership}
 \alias{rbetabinStateValueMembership}
-\title{Simulate a Variable from an Ecosystem-State Value Distribution (Beta-Binomial Error)}
+\title{Simulate a Variable from a beta-binomial mixture (Beta-Binomial Error)}
 \usage{
 rbetabinStateValueMembership(n, stateVal, statePrec, stateProb, numTrials)
 }
@@ -10,23 +10,20 @@ rbetabinStateValueMembership(n, stateVal, statePrec, stateProb, numTrials)
 \item{n}{An integer scalar containing the number of variables to simulate (NIMBLE currently
 only allows n = 1)}
 
-\item{stateVal}{A numeric vector containing the mean values of the ecosystem state variable
-associated with each alternative stable state}
+\item{stateVal}{A numeric vector containing the mean values of the mixture components}
 
-\item{statePrec}{A numeric vector containing the precision (reciprocal of the variance) of the
-error of the ecosystem state variable associated with each alternative stable state}
+\item{statePrec}{A numeric vector containing the precision (reciprocal of the variance) of the mixture components}
 
-\item{stateProb}{A numeric vector containing the probabilities of being in each ecosystem stable
-state (internally normalised to one)}
+\item{stateProb}{A numeric vector containing the probabilities of belonging
+to each mixture component (internally normalised to one)}
 
 \item{numTrials}{A scalar containing the number of trials}
 }
 \value{
-A scalar containing the simulated ecosystem state variable
+A scalar containing the simulated response variable
 }
 \description{
-Simulate a variable according to an ecosystem-state value distribution with a
-beta-binomial error distribution for the ecosystem state variable.
+Simulate a variable from a beta-binomial mixture.
 }
 \author{
 Joseph D. Chipperfield, \email{joechip90@googlemail.com}

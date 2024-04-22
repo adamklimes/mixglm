@@ -23,7 +23,7 @@ binomial distribution}
 A scalar containing the simulated variable
 }
 \description{
-Generate a varibale from the beta-binomial distribution.
+Generate a variable from the beta-binomial distribution.
 }
 \author{
 Joseph D. Chipperfield, \email{joechip90@googlemail.com}

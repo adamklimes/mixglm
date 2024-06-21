@@ -58,3 +58,13 @@ To explore stability curves for specific predictor values (i.e., effectively mak
 ```{r slice}
 sliceMixglm(mod, value = 1)
 ```
+
+To get resilience metrics, we use the predict function. It calculates potential energy, distance to closest tipping point, distance to closest stable state, and potential depth.
+```{r predict}
+pred <- predict(mod)
+par(mfrow = c(2,2))
+plot(dat$x, dat$y, cex = pred$obsDat$potentEn * 2, main = "Potential energy")
+plot(dat$x, dat$y, cex = pred$obsDat$distToTip, main = "Distance to tipping point")
+plot(dat$x, dat$y, cex = pred$obsDat$distToState * 6, main = "Distance to stable state")
+plot(dat$x, dat$y, cex = pred$obsDat$potentialDepth * 1.5, main = "Potential depth")
+```

@@ -71,7 +71,7 @@ setBUGSVariableName <- function(inName) {
 #' @param stateValError A description of the error distribution and link function to be used
 #' in the model describing the response variable.  This can be from the \link[stats]{family}
 #' specification or \code{character} scalar with the following possible values: \code{"gaussian"},
-#' \code{"gamma"}, \code{"beta"}, \code{"negbinomial"}, or \code{"betabinomial"}.
+#' \code{"gamma"}, \code{"beta"}, or \code{"negbinomial"}.
 #' @param setPriors A named list of prior distributions. Distribution are specified using character
 #' strings. If sublists are not provided, values from the list are distributed to all sublist items
 #' allowing to specify several priors at once. Sublist items are \code{"int"}, for specification of
@@ -123,7 +123,7 @@ mixglmSpecification <- function(
     inherits(inVal, "formula")
   }
   # The supported error distributions
-  supportedError <- c("gaussian", "gamma", "beta", "negbinomial", "betabinomial")
+  supportedError <- c("gaussian", "gamma", "beta", "negbinomial") #, "betabinomial"
   # The suported link functions
   supportedLink <- c("identity", "log", "logit", "probit", "cloglog")
   # Sanity test the error distribution for the state error
@@ -151,9 +151,9 @@ mixglmSpecification <- function(
     } else if(tolower(inStateValError[1]) == "negbinomial") {
       inStateValError <- factor("negbinomial", levels = supportedError)
       inLinkFunction <- factor("log", levels = supportedLink)
-    } else if(tolower(inStateValError[1]) == "betabinomial") {
-      inStateValError <- factor("betabinomial", levels = supportedError)
-      inLinkFunction <- factor("logit", levels = supportedLink)
+#    } else if(tolower(inStateValError[1]) == "betabinomial") {
+#      inStateValError <- factor("betabinomial", levels = supportedError)
+#      inLinkFunction <- factor("logit", levels = supportedLink)
     } else {
       stop("selected error family is not supported")
     }
@@ -897,7 +897,7 @@ mixglmSimulation <- function(
 #' @param stateValError A description of the error distribution and link function to be used
 #' in the mixture model.  This can be from the \link[stats]{family}
 #' specification or \code{character} scalar with the following possible values: \code{"gaussian"},
-#' \code{"gamma"}, \code{"beta"}, \code{"negbinomial"}, or \code{"betabinomial"}.
+#' \code{"gamma"}, \code{"beta"}, or \code{"negbinomial"}.
 #' @param mcmcIters An integer scalar providing the number of post-burn-in samples to draw from the
 #' MCMC sampler (per chain).
 #' @param mcmcBurnin An integer scalar providing the number of MCMC samples to use for the
@@ -1238,7 +1238,9 @@ summary.mixglm <- function(object, byChains = FALSE, digit = 4L,
 #' stable states and tipping points, their scaled probability density and response
 #' variable value, whether they are stable states, and whether their satisfy the threshold}
 #' \item{\code{obsDat}}{ A data frame containing values of response variable, potential energy,
-#' distance to closest tipping point and stable state for each observation}
+#' distance to closest tipping point and stable state for each observation,
+#' potential depth defined as a difference between potential energy of the
+#' observation and the closest tipping point}
 #' }
 #'
 #' @author Adam Klimes
@@ -1265,7 +1267,7 @@ summary.mixglm <- function(object, byChains = FALSE, digit = 4L,
 #' plot(pre$sampledResp, pre$probCurves$X2, type = "l")}
 #' @export
 #'
-predict.mixglm <- function(object, newdata = NULL, samples = 1000, threshold = 0.2, ...){
+predict.mixglm <- function(object, newdata = NULL, samples = 1000, threshold = 0.0, ...){
   # input check
   if (!(is.null(newdata) | is.data.frame(newdata)))
     stop("'newdata' has to be NULL or data.frame")
@@ -1292,18 +1294,29 @@ predict.mixglm <- function(object, newdata = NULL, samples = 1000, threshold = 0
   }
   potentEn <- unlist(Map(function(x, y) -x[y]+1, probCurve, vapply(respVal, auxFn, FUN.VALUE = 1)))
   auxDist <- function(x, target) min(abs(x - target))
-  selState <- function(x, state = 1) {
-    out <- x$resp[x$state == state & x$catSt == 1]
+  selState <- function(x, state = 1, varOut = "resp") {
+    out <- x[x$state == state & x$catSt == 1, varOut]
     if (length(out) == 0) out <- NA
     out
   }
   obsDat <- NULL
+  #calcDistToBifurcation <- function(svar, respVal, samples, threshold){
+  #  pred <- object$constants[[svar]]
+  #  xx <- seq(min(pred), max(pred), length.out = samples)
+  #  slicesY <- list(list(t(sliceMixglm(object, value = xx, respIn = respVal, byChains = FALSE, doPlot = FALSE)[[1]]$mean)), resp = xx)
+  #  tipStableY <- getMinMax(slicesY, threshold = threshold)$tipStable[[1]]
+  #  unlist(Map(auxDist, pred, lapply(tipStableY, selState, 0)))
+  #}
+  #predNames <- names(object$constants)[4:length(object$constants)]
   if (!is.null(respVal)){
     obsDat <- data.frame(
       respVal = respVal,
       potentEn = potentEn,
       distToTip = unlist(Map(auxDist, respVal, lapply(tipStable, selState, 0))),
-      distToState = unlist(Map(auxDist, respVal, lapply(tipStable, selState, 1))))
+      distToState = unlist(Map(auxDist, respVal, lapply(tipStable, selState, 1))),
+      potentialDepth = 1 - potentEn - vapply(tipStable, selState, 0, varOut = "probDens", FUN.VALUE = 1.1))
+  #  distToB <- setNames(lapply(predNames, calcDistToBifurcation, respVal, samples, threshold), paste0("distToBifurcation", predNames))
+  #  obsDat <- cbind(obsDat, distToB)
   }
   list(sampledResp = resp,
               probCurves = probCurve,
@@ -1525,6 +1538,8 @@ getMinMax <- function(slices, threshold = 0.0){
 #' distribution to take instead of summary. Use \code{"NULL"} for summary.
 #' @param getParsD logical value indicating if the output should be parameters
 #' of distributions instead of the slice. Requires \code{doPlot} to be \code{FALSE}
+#' @param respIn mainly for internal use. Numeric vector specifying values along
+#' response variable for which to compute probability density.
 #'
 #' @return Returns invisibly a list containing the following components:
 #' \itemize{
@@ -1567,7 +1582,7 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
   xlab = names(mod$data), doPlot = TRUE,
   setCol = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e"),
   plotEst = TRUE, xaxis = TRUE, addEcos = FALSE, ecosTol = 0.1, samples = 1000,
-  randomSample = NULL, getParsD = FALSE){
+  randomSample = NULL, getParsD = FALSE, respIn = NULL){
   # input check
   if (!inherits(mod, "mixglm")) stop("'mod' must be an object of class 'mixglm'")
   form <- if (is.null(form))
@@ -1590,6 +1605,7 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
   if (!is.numeric(samples)) stop("'samples' has to be numeric")
   if (!is.logical(getParsD)) stop("'getParsD' has to be logical")
   if (getParsD & doPlot) stop("please set 'doPlot' to FALSE to use 'getParsD'")
+  if (!is.numeric(respIn) & !is.null(respIn)) stop("'respIn' has to be numeric")
   #_
   resp <- mod$data[[1]]
   parsTab <- summary(mod, byChains = byChains, absInt = TRUE, digit = NULL, randomSample = randomSample)
@@ -1607,6 +1623,7 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
     pred <- mod$constants[[svar]]
     xx <- c(xx, resp[abs(pred - value) < ecosTol])
   }
+  if (!is.null(respIn)) xx <- respIn
   if (is.null(dim(value))) value <- matrix(value, length(value), dimnames = list(NULL, svar))
   value <- as.matrix(value)
   calcParsVal <- function(pars, value, mod){

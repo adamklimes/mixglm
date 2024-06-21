@@ -129,7 +129,7 @@ dnormStateValueMembership <- nimbleFunction(
     # Specify the return type dimensionality
     returnType(double(0))
     # Retrieve the number of states in the model
-    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
+    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(stateProb)[1]))
     if(numStates < 2) {
       stop("invalid number of mixture components (there must be at least two)")
     }
@@ -180,7 +180,7 @@ rnormStateValueMembership <- nimbleFunction(
     # Specify the return type dimensionality
     returnType(double(0))
     # Retrieve the number of states in the model
-    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
+    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(stateProb)[1]))
     if(numStates < 2) {
       stop("invalid number of mixture components (there must be at least two)")
     }
@@ -231,7 +231,7 @@ dgammaStateValueMembership <- nimbleFunction(
     # Specify the return type dimensionality
     returnType(double(0))
     # Retrieve the number of states in the model
-    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
+    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(stateProb)[1]))
     if(numStates < 2) {
       stop("invalid number of mixture components (there must be at least two)")
     }
@@ -286,7 +286,7 @@ rgammaStateValueMembership <- nimbleFunction(
     # Specify the return type dimensionality
     returnType(double(0))
     # Retrieve the number of states in the model
-    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
+    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(stateProb)[1]))
     if(numStates < 2) {
       stop("invalid number of mixture components (there must be at least two)")
     }
@@ -340,7 +340,7 @@ dbetaStateValueMembership <- nimbleFunction(
     # Specify the return type dimensionality
     returnType(double(0))
     # Retrieve the number of states in the model
-    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
+    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(stateProb)[1]))
     if(numStates < 2) {
       stop("invalid number of mixture components (there must be at least two)")
     }
@@ -394,7 +394,7 @@ rbetaStateValueMembership <- nimbleFunction(
     # Specify the return type dimensionality
     returnType(double(0))
     # Retrieve the number of states in the model
-    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
+    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(stateProb)[1]))
     if(numStates < 2) {
       stop("invalid number of mixture components (there must be at least two)")
     }
@@ -448,7 +448,7 @@ dnegbinStateValueMembership <- nimbleFunction(
     # Specify the return type dimensionality
     returnType(double(0))
     # Retrieve the number of states in the model
-    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
+    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(stateProb)[1]))
     if(numStates < 2) {
       stop("invalid number of mixture components (there must be at least two)")
     }
@@ -514,7 +514,7 @@ rnegbinStateValueMembership <- nimbleFunction(
     # Specify the return type dimensionality
     returnType(double(0))
     # Retrieve the number of states in the model
-    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
+    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(stateProb)[1]))
     if(numStates < 2) {
       stop("invalid number of mixture components (there must be at least two)")
     }
@@ -573,7 +573,7 @@ dbetabinStateValueMembership <- nimbleFunction(
     # Specify the return type dimensionality
     returnType(double(0))
     # Retrieve the number of states in the model
-    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
+    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(stateProb)[1]))
     if(numStates < 2) {
       stop("invalid number of mixture components (there must be at least two)")
     }
@@ -637,7 +637,7 @@ rbetabinStateValueMembership <- nimbleFunction(
     # Specify the return type dimensionality
     returnType(double(0))
     # Retrieve the number of states in the model
-    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(statePrec)[1]))
+    numStates <- max(dim(stateVal)[1], max(dim(statePrec)[1], dim(stateProb)[1]))
     if(numStates < 2) {
       stop("invalid number of mixture components (there must be at least two)")
     }

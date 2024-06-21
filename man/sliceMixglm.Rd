@@ -18,7 +18,8 @@ sliceMixglm(
   ecosTol = 0.1,
   samples = 1000,
   randomSample = NULL,
-  getParsD = FALSE
+  getParsD = FALSE,
+  respIn = NULL
 )
 }
 \arguments{
@@ -55,6 +56,9 @@ distribution to take instead of summary. Use \code{"NULL"} for summary.}
 
 \item{getParsD}{logical value indicating if the output should be parameters
 of distributions instead of the slice. Requires \code{doPlot} to be \code{FALSE}}
+
+\item{respIn}{mainly for internal use. Numeric vector specifying values along
+response variable for which to compute probability density.}
 }
 \value{
 Returns invisibly a list containing the following components:

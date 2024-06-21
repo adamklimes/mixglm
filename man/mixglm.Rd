@@ -53,7 +53,7 @@ list.}
 \item{stateValError}{A description of the error distribution and link function to be used
 in the mixture model.  This can be from the \link[stats]{family}
 specification or \code{character} scalar with the following possible values: \code{"gaussian"},
-\code{"gamma"}, \code{"beta"}, \code{"negbinomial"}, or \code{"betabinomial"}.}
+\code{"gamma"}, \code{"beta"}, or \code{"negbinomial"}.}
 
 \item{mcmcIters}{An integer scalar providing the number of post-burn-in samples to draw from the
 MCMC sampler (per chain).}

@@ -48,7 +48,7 @@ list.}
 \item{stateValError}{A description of the error distribution and link function to be used
 in the model describing the response variable.  This can be from the \link[stats]{family}
 specification or \code{character} scalar with the following possible values: \code{"gaussian"},
-\code{"gamma"}, \code{"beta"}, \code{"negbinomial"}, or \code{"betabinomial"}.}
+\code{"gamma"}, \code{"beta"}, or \code{"negbinomial"}.}
 
 \item{setPriors}{A named list of prior distributions. Distribution are specified using character
 strings. If sublists are not provided, values from the list are distributed to all sublist items

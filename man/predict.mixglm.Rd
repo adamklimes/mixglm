@@ -4,7 +4,7 @@
 \alias{predict.mixglm}
 \title{Predict from mixglm}
 \usage{
-\method{predict}{mixglm}(object, newdata = NULL, samples = 1000, threshold = 0.2, ...)
+\method{predict}{mixglm}(object, newdata = NULL, samples = 1000, threshold = 0, ...)
 }
 \arguments{
 \item{object}{an object of class "mixglm"}
@@ -29,7 +29,9 @@ A list containing the following components:
 stable states and tipping points, their scaled probability density and response
 variable value, whether they are stable states, and whether their satisfy the threshold}
 \item{\code{obsDat}}{ A data frame containing values of response variable, potential energy,
-distance to closest tipping point and stable state for each observation}
+distance to closest tipping point and stable state for each observation,
+potential depth defined as a difference between potential energy of the
+observation and the closest tipping point}
 }
 }
 \description{

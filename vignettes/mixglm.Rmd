@@ -1,6 +1,5 @@
 ---
 title: "Mixture models with mixglm"
-author: "Adam Klimes"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{mixglm}

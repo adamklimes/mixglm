@@ -1293,30 +1293,20 @@ predict.mixglm <- function(object, newdata = NULL, samples = 1000, threshold = 0
     which(dist == min(dist))[1]
   }
   potentEn <- unlist(Map(function(x, y) -x[y]+1, probCurve, vapply(respVal, auxFn, FUN.VALUE = 1)))
-  auxDist <- function(x, target) min(abs(x - target))
-  selState <- function(x, state = 1, varOut = "resp") {
-    out <- x[x$state == state & x$catSt == 1, varOut]
-    if (length(out) == 0) out <- NA
-    out
+  getClosest <- function(x, targetResp, state = 1, getVar = "respDist"){
+    xSel <- x[x$state == state & x$catSt == 1, ]
+    distT <- abs(xSel$resp - targetResp)
+    if (length(distT) == 0) distT <- NA
+    cbind(xSel[distT == min(distT), ], respDist = min(distT))[, getVar]
   }
   obsDat <- NULL
-  #calcDistToBifurcation <- function(svar, respVal, samples, threshold){
-  #  pred <- object$constants[[svar]]
-  #  xx <- seq(min(pred), max(pred), length.out = samples)
-  #  slicesY <- list(list(t(sliceMixglm(object, value = xx, respIn = respVal, byChains = FALSE, doPlot = FALSE)[[1]]$mean)), resp = xx)
-  #  tipStableY <- getMinMax(slicesY, threshold = threshold)$tipStable[[1]]
-  #  unlist(Map(auxDist, pred, lapply(tipStableY, selState, 0)))
-  #}
-  #predNames <- names(object$constants)[4:length(object$constants)]
   if (!is.null(respVal)){
     obsDat <- data.frame(
       respVal = respVal,
       potentEn = potentEn,
-      distToTip = unlist(Map(auxDist, respVal, lapply(tipStable, selState, 0))),
-      distToState = unlist(Map(auxDist, respVal, lapply(tipStable, selState, 1))),
-      potentialDepth = 1 - potentEn - vapply(tipStable, selState, 0, varOut = "probDens", FUN.VALUE = 1.1))
-  #  distToB <- setNames(lapply(predNames, calcDistToBifurcation, respVal, samples, threshold), paste0("distToBifurcation", predNames))
-  #  obsDat <- cbind(obsDat, distToB)
+      distToTip = unlist(Map(getClosest, tipStable, respVal, state = 0)),
+      distToState = unlist(Map(getClosest, tipStable, respVal, state = 1)),
+      potentialDepth = 1 - potentEn - unlist(Map(getClosest, tipStable, respVal, state = 0, getVar = "probDens")))
   }
   list(sampledResp = resp,
               probCurves = probCurve,

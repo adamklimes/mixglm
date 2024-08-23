@@ -326,8 +326,8 @@ mixglmSpecification <- function(
     outNames
   }
   # Check priors
-  if (!all(grepl("^d.+\\(.*)$", unlist(setPriors))))
-    stop("unexpected prior specification")
+  if (!all(grepl("^(T\\()*d.+\\(.*)\\)*$", unlist(setPriors))))
+    warning("unexpected prior specification")
   # Helper function which takes call of the list and modify/amends its items on all levels
   callModify <- function(oldCall, mods){
     callObj <- eval(oldCall)

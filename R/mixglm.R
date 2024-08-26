@@ -658,8 +658,8 @@ checkInit <- function(stateValModels, statePrecModels, inputData, setInit,
     IDaux <- grep(initNames, names(initVal))
     initAux <- initVal[IDaux]
     names(initAux) <- sub(initNames, "", names(initAux))
-    names(initAux)[names(initAux) == "intercept"] <- "(Intercept)"
-    matchID <- match(colnames(modMat), names(initAux))
+    names(initAux)[names(initAux) == "intercept"] <- "_Intercept_"
+    matchID <- match(setBUGSVariableName(colnames(modMat)), names(initAux))
     initAux <- initAux[matchID]
     init <- unlist(lapply(initAux, function(x, state) x[state], state))
     list(val = as.vector(modMat %*% init), ID = IDaux[matchID])

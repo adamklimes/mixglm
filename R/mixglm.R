@@ -673,7 +673,7 @@ checkInit <- function(stateValModels, statePrecModels, inputData, setInit,
                      negbinomial = function(M, P) {r <- M * M * P / (1 - P * M); r >= 0 & r <= 1})
   invlink <- switch(as.character(linkFunction), identity = function(x) x, log = exp,
                     logit = function(x) exp(x)/(1+exp(x)), probit = pnorm, cloglog = function(x) 1 - exp(-exp(x)))
-  genP <- if (errorModel == "beta") function(x) genFn(x) + 6 else getFn
+  genP <- if (errorModel == "beta") function(x) genFn(x) + 6 else genFn
   genFnAbs <- function(x) if (x != 1) abs(genFn(x)) else genFn(x)
   updateItem <- function(x, state, fn) Map(function(x, state, fn) {x[state] <- fn(state); x}, x, state, list(fn))
   for (state in 1:Nstates){

@@ -464,8 +464,8 @@ mixglmSpecification <- function(
       # Initialise a vecotr of output values
       outValuesNames <- c("intercept", stateValCovs_nonIntercept)
       outValues <- setNames(c(
-        rnorm(length(stateValCovs_nonIntercept), 0.0, 1.0),
-        ifelse(curState > 1, abs(rnorm(1, 0.0, 1.0)), rnorm(1, 0.0, 1.0))
+        ifelse(curState > 1, abs(rnorm(1, 0.0, 1.0)), rnorm(1, 0.0, 1.0)),
+        rnorm(length(stateValCovs_nonIntercept), 0.0, 1.0)
       ), paste(outValuesNames, "_stateVal[", curState, "]", sep = ""))
       if(curState > 1) {
         # Add the the probability sub-model parameters if the current state is greater than 1

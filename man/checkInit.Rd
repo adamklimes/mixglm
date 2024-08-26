@@ -48,8 +48,10 @@ in the mixglm. This can be: \code{"gaussian"},
 \code{setInit} contains legitimate values.}
 
 \item{genFn}{A function used to generate new initial values. It has one argument which is
-the component rank and it should return one value. Note that for intercept of precision of beta
-distribution, \code{genFn(1) + 6} is used.}
+the component rank and it should return one value. Absolute value of provided
+function is used for initial value of intercept of mean for components apart
+from the first one. Note that for intercept of precision of beta
+distribution, \code{genFn(x) + 6} is used.}
 }
 \value{
 A list of initial values

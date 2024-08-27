@@ -352,7 +352,8 @@ dbetaStateValueMembership <- nimbleFunction(
     fullProb <- sum(inStateProb[1:numStates])
     # Reparameterise in terms of the canoconical NIMBLE parameterisation
     inAlpha <- inStateVal[1:numStates] * inStateVal[1:numStates] * (1.0 - inStateVal[1:numStates]) * inStatePrec[1:numStates] - inStateVal[1:numStates]
-    inBeta <- inStateVal[1:numStates] * pow(1.0 - inStateVal[1:numStates], 2.0) * inStatePrec[1:numStates] + inStateVal[1:numStates] - 1.0
+#    inBeta <- inStateVal[1:numStates] * pow(1.0 - inStateVal[1:numStates], 2.0) * inStatePrec[1:numStates] + inStateVal[1:numStates] - 1.0
+    inBeta <- inStateVal[1:numStates] * (1.0 - inStateVal[1:numStates]) * (1.0 - inStateVal[1:numStates]) * inStatePrec[1:numStates] + inStateVal[1:numStates] - 1.0
     # Intialise a vector of conditional probabilities for each state
     condStateProb <- numeric(length = numStates)
     for(stateIter in 1:numStates) {

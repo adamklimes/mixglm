@@ -1,4 +1,4 @@
-# mixglm
+# mixglm<img src="https://github.com/adamklimes/mixglm/blob/main/logo.png" align="right" width="400" />
 R package for mixtures of generalized linear models and tools to estimate ecosystem resilience and stable states using these models 
 
 ## Installation

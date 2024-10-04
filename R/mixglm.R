@@ -109,7 +109,7 @@ mixglmSpecification <- function(
   setPriors = list(
     stateVal = list(
       int1 = "dnorm(0.0, 0.001)",
-      int2 = "dgamma(0.001, 0.001)",
+      int2 = "dgamma(1.0, 0.5)",
       pred = "dnorm(0.0, 0.001)"),
     stateProb = list(
       int2 = "dnorm(0.0, 0.001)",
@@ -921,6 +921,8 @@ mixglmSimulation <- function(
 #' values. Prior \code{"stateVal$Int2"} should allow only positive values to ensure distinctness of
 #' mixture components.
 #' @param setInit list of initial values which overwrites generated ones.
+#' @param setSeed logical or numeric argument passed to \link[nimble]{runMCMC}. If \code{"TRUE"} or
+#' numeric, R's random number seed is set at the onset of each MCMC chain.
 #'
 #' @return A list containing the following components:
 #' \itemize{
@@ -974,7 +976,7 @@ mixglm <- function(
   setPriors = list(
     stateVal = list(
       int1 = "dnorm(0.0, 0.001)",
-      int2 = "dgamma(0.001, 0.001)",
+      int2 = "dgamma(1.0, 0.5)",
       pred = "dnorm(0.0, 0.001)"),
     stateProb = list(
       int2 = "dnorm(0.0, 0.001)",
@@ -982,7 +984,8 @@ mixglm <- function(
     statePrec = list(
       int = "dnorm(0.0, 0.001)",
       pred = "dnorm(0.0, 0.001)")),
-  setInit = NULL
+  setInit = NULL,
+  setSeed = FALSE
 ) {
   # Create a NIMBLE model specification
   modelSpecification <- mixglmSpecification(stateValModels, stateProbModels, statePrecModels, inputData, numStates, stateValError, setPriors)
@@ -1000,7 +1003,7 @@ mixglm <- function(
   mcmcObject <- buildMCMC(modelObject, enableWAIC = TRUE, monitors = varsToMonitor)
   mcmcObjectCompiled <- compileNimble(mcmcObject, modelObject)
   # Run the MCMC
-  mcmcOutput <- runMCMC(mcmcObjectCompiled$mcmcObject, niter = mcmcIters, nburnin = mcmcBurnin, thin = mcmcThin, nchains = mcmcChains, WAIC = TRUE, samplesAsCodaMCMC = TRUE)
+  mcmcOutput <- runMCMC(mcmcObjectCompiled$mcmcObject, niter = mcmcIters, nburnin = mcmcBurnin, thin = mcmcThin, nchains = mcmcChains, WAIC = TRUE, samplesAsCodaMCMC = TRUE, setSeed = setSeed)
   # Structure the compiled model, the MCMC samples, and the model specification into a list
   out <- append(list(mcmcSamples = mcmcOutput, compiledModel = mcmcObjectCompiled), modelSpecification)
   class(out) <- "mixglm"
@@ -1577,7 +1580,7 @@ getMinMax <- function(slices, threshold = 0.0){
 #'
 sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
   xlab = names(mod$data), doPlot = TRUE,
-  setCol = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e"),
+  setCol = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02", "#a6761d", "#666666"),
   plotEst = TRUE, xaxis = TRUE, addEcos = FALSE, ecosTol = 0.1, samples = 1000,
   randomSample = NULL, getParsD = FALSE, respIn = NULL){
   # input check

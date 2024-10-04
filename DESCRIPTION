@@ -1,7 +1,7 @@
 Package: mixglm
 Type: Package
 Title: Model ecosystem resilience using mixture regression models
-Version: 0.1.0
+Version: 0.2.0
 Author: Adam Klimes, Joseph D. Chipperfield
 Maintainer: Adam Klimes <adamklimes3@gmail.com>
 Description: The <b>mixglm</b> provides functions to fit mixtures of generalized linear models and tools to assess resilience using these models. Available are mixtures with gaussian, gamma, beta, negative binomial, and betabinomial distribution. Tools for postprocessing offer construction of stability curves and landscapes, identification of stable states and tipping points, and calculation of distances from observations to them. Visualization functions are available. 
@@ -12,7 +12,8 @@ RoxygenNote: 7.3.2
 Suggests: 
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    coda
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Depends: nimble

@@ -11,10 +11,10 @@ mixglmSpecification(
   inputData,
   numStates = NULL,
   stateValError = gaussian,
-  setPriors = list(stateVal = list(int1 = "dnorm(0.0, 0.001)", int2 =
-    "dgamma(0.001, 0.001)", pred = "dnorm(0.0, 0.001)"), stateProb = list(int2 =
-    "dnorm(0.0, 0.001)", pred = "dnorm(0.0, 0.001)"), statePrec = list(int =
-    "dnorm(0.0, 0.001)", pred = "dnorm(0.0, 0.001)"))
+  setPriors = list(stateVal = list(int1 = "dnorm(0.0, 0.001)", int2 = "dgamma(1.0, 0.5)",
+    pred = "dnorm(0.0, 0.001)"), stateProb = list(int2 = "dnorm(0.0, 0.001)", pred =
+    "dnorm(0.0, 0.001)"), statePrec = list(int = "dnorm(0.0, 0.001)", pred =
+    "dnorm(0.0, 0.001)"))
 )
 }
 \arguments{

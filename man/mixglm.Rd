@@ -15,11 +15,12 @@ mixglm(
   mcmcBurnin = 5000,
   mcmcChains = 4,
   mcmcThin = 1,
-  setPriors = list(stateVal = list(int1 = "dnorm(0.0, 0.001)", int2 =
-    "dgamma(0.001, 0.001)", pred = "dnorm(0.0, 0.001)"), stateProb = list(int2 =
-    "dnorm(0.0, 0.001)", pred = "dnorm(0.0, 0.001)"), statePrec = list(int =
-    "dnorm(0.0, 0.001)", pred = "dnorm(0.0, 0.001)")),
-  setInit = NULL
+  setPriors = list(stateVal = list(int1 = "dnorm(0.0, 0.001)", int2 = "dgamma(1.0, 0.5)",
+    pred = "dnorm(0.0, 0.001)"), stateProb = list(int2 = "dnorm(0.0, 0.001)", pred =
+    "dnorm(0.0, 0.001)"), statePrec = list(int = "dnorm(0.0, 0.001)", pred =
+    "dnorm(0.0, 0.001)")),
+  setInit = NULL,
+  setSeed = FALSE
 )
 }
 \arguments{
@@ -76,6 +77,9 @@ values. Prior \code{"stateVal$Int2"} should allow only positive values to ensure
 mixture components.}
 
 \item{setInit}{list of initial values which overwrites generated ones.}
+
+\item{setSeed}{logical or numeric argument passed to \link[nimble]{runMCMC}. If \code{"TRUE"} or
+numeric, R's random number seed is set at the onset of each MCMC chain.}
 }
 \value{
 A list containing the following components:

@@ -12,7 +12,7 @@ test_that("checkInit with legitimate initial values", {
   y <- rnorm(n)
   dat <- data.frame(x, y)
   initVals <- list(
-    intercept_stateVal = c(0,0),
+    intercept_stateVal = c(0,0.1),
     intercept_statePrec = c(0,0),
     intercept_stateProb = c(0,0),
     x_stateVal = c(0,0),

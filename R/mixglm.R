@@ -82,7 +82,6 @@ setBUGSVariableName <- function(inName) {
 #' states.
 #'
 #' @return A list containing the following components:
-#' \itemize{
 #' \item{\code{modelText}}{ A character scalar containing the text of the model specification in
 #' the NIMBLE BUGS dialect}
 #' \item{\code{modelCode}}{ A \code{nimbleCode} object containing the model specification}
@@ -94,7 +93,6 @@ setBUGSVariableName <- function(inName) {
 #' of the mixture model}
 #' \item{\code{initialValues}}{ A list containing potential initial values for each of the stochastic
 #' nodes in the NIMBLE model specification}
-#' }
 #'
 #' @author Joseph D. Chipperfield \email{joechip90@@googlemail.com}, Adam Klimes
 #' @keywords internal
@@ -743,7 +741,6 @@ checkInit <- function(stateValModels, statePrecModels, inputData, setInit,
 #'
 #' @return A list containg a vector of simulated values for each stochastic node.  In addition the
 #' following elements are appended to the list:
-#' \itemize{
 #' \item{\code{linStateVal}}{ A matrix containing the predicted response variable values at each row
 #' of the input covariate data.frame.  Each column represents the predicted response variable value
 #' for each mixture component}
@@ -753,7 +750,6 @@ checkInit <- function(stateValModels, statePrecModels, inputData, setInit,
 #' \item{\code{linStateProb}}{ A matrix containing the probability of each mixture component existing
 #' at each row of the input covariate data.frame.  Each column represents the probability of each
 #' mixture component existing}
-#' }
 #'
 #' @author Joseph D. Chipperfield, \email{joechip90@@googlemail.com}
 #' @examples {
@@ -925,7 +921,6 @@ mixglmSimulation <- function(
 #' numeric, R's random number seed is set at the onset of each MCMC chain.
 #'
 #' @return A list containing the following components:
-#' \itemize{
 #' \item{\code{mcmcSamples}}{ An \link[coda]{mcmc} object if \code{mcmcChains == 1} or \link[coda]{mcmc.list}
 #' object if \code{mcmcChains > 1} containing the sampled values}
 #' \item{\code{compiledModel}}{ An R interface object containing an interface for the compiled NIMBLE model.
@@ -941,7 +936,6 @@ mixglmSimulation <- function(
 #' of the mixture model}
 #' \item{\code{initialValues}}{ A list containing potential initial values used for each of the stochastic
 #' nodes in the NIMBLE model specification}
-#' }
 #'
 #' @author Joseph D. Chipperfield \email{joechip90@@googlemail.com}, Adam Klimes
 #' @examples \dontrun{
@@ -1241,7 +1235,6 @@ summary.mixglm <- function(object, byChains = FALSE, digit = 4L,
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @return A list containing the following components:
-#' \itemize{
 #' \item{\code{sampledResp}}{ A numeric vector of samples along response variable}
 #' \item{\code{probCurves}}{ A data frame of stability curves for each observation}
 #' \item{\code{tipStable}}{ A list of data.frames for each observation with all
@@ -1251,7 +1244,6 @@ summary.mixglm <- function(object, byChains = FALSE, digit = 4L,
 #' distance to closest tipping point and stable state for each observation,
 #' potential depth defined as a difference between potential energy of the
 #' observation and the closest tipping point}
-#' }
 #'
 #' @author Adam Klimes
 #' @examples \dontrun{
@@ -1450,13 +1442,12 @@ findMin <- function(x, extremes = TRUE){
 #'   threshold value.
 #'
 #' @return A list containing the following components:
-#' \itemize{
 #' \item{\code{tipStable}}{ A list of lists of dataframes with
 #'   tipping points (state == 0) and stable states (state == 1), categorized
 #'   based on satifying the threshold (catSt == 1), with their scaled [0-1]
 #'   probability density and response variable value}
 #' \item{\code{mats}}{ An array of stability landscapes}
-#' \item{\code{matsSt}}{ A list of scaled stability landscapes}}
+#' \item{\code{matsSt}}{ A list of scaled stability landscapes}
 #'
 #' @author Adam Klimes
 #' @keywords internal
@@ -1542,7 +1533,6 @@ getMinMax <- function(slices, threshold = 0.0){
 #' response variable for which to compute probability density.
 #'
 #' @return Returns invisibly a list containing the following components:
-#' \itemize{
 #' \item{\code{chainX}}{ One or more items of a matrix of probability density
 #' values along the response with a column for each \code{value}. One item is
 #' returned if \code{byChains} is not \code{TRUE}, otherwise one item for each
@@ -1551,7 +1541,7 @@ getMinMax <- function(slices, threshold = 0.0){
 #' \item{\code{densFun}}{ If \code{getParsD} is \code{TRUE}, function for
 #' calculation of probability density is returned.}
 #' \item{\code{resp}}{ A vector of response values for which stability curves are
-#' evaluated}}
+#' evaluated}
 #'
 #' @author Adam Klimes
 #' @examples \dontrun{

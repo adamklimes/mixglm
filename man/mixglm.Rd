@@ -83,7 +83,6 @@ numeric, R's random number seed is set at the onset of each MCMC chain.}
 }
 \value{
 A list containing the following components:
-\itemize{
 \item{\code{mcmcSamples}}{ An \link[coda]{mcmc} object if \code{mcmcChains == 1} or \link[coda]{mcmc.list}
 object if \code{mcmcChains > 1} containing the sampled values}
 \item{\code{compiledModel}}{ An R interface object containing an interface for the compiled NIMBLE model.
@@ -99,7 +98,6 @@ the error distribution for the response variable}
 of the mixture model}
 \item{\code{initialValues}}{ A list containing potential initial values used for each of the stochastic
 nodes in the NIMBLE model specification}
-}
 }
 \description{
 This function takes a set of model specifications for the three sub-models

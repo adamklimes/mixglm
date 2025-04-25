@@ -61,7 +61,6 @@ states.}
 }
 \value{
 A list containing the following components:
-\itemize{
 \item{\code{modelText}}{ A character scalar containing the text of the model specification in
 the NIMBLE BUGS dialect}
 \item{\code{modelCode}}{ A \code{nimbleCode} object containing the model specification}
@@ -73,7 +72,6 @@ the error distribution for the response variable}
 of the mixture model}
 \item{\code{initialValues}}{ A list containing potential initial values for each of the stochastic
 nodes in the NIMBLE model specification}
-}
 }
 \description{
 This function takes a set of model specifications for the three sub-models

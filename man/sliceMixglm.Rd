@@ -63,7 +63,6 @@ response variable for which to compute probability density.}
 }
 \value{
 Returns invisibly a list containing the following components:
-\itemize{
 \item{\code{chainX}}{ One or more items of a matrix of probability density
 values along the response with a column for each \code{value}. One item is
 returned if \code{byChains} is not \code{TRUE}, otherwise one item for each
@@ -72,7 +71,7 @@ distributions are returned instead.}
 \item{\code{densFun}}{ If \code{getParsD} is \code{TRUE}, function for
 calculation of probability density is returned.}
 \item{\code{resp}}{ A vector of response values for which stability curves are
-evaluated}}
+evaluated}
 }
 \description{
 This function plots probability density for given predictor value

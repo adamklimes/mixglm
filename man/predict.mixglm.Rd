@@ -22,7 +22,6 @@ should be marked as considerable}
 }
 \value{
 A list containing the following components:
-\itemize{
 \item{\code{sampledResp}}{ A numeric vector of samples along response variable}
 \item{\code{probCurves}}{ A data frame of stability curves for each observation}
 \item{\code{tipStable}}{ A list of data.frames for each observation with all
@@ -32,7 +31,6 @@ variable value, whether they are stable states, and whether their satisfy the th
 distance to closest tipping point and stable state for each observation,
 potential depth defined as a difference between potential energy of the
 observation and the closest tipping point}
-}
 }
 \description{
 This function calculates stability curves and resilience metrics based

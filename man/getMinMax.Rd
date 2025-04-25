@@ -15,13 +15,12 @@ threshold value.}
 }
 \value{
 A list containing the following components:
-\itemize{
 \item{\code{tipStable}}{ A list of lists of dataframes with
   tipping points (state == 0) and stable states (state == 1), categorized
   based on satifying the threshold (catSt == 1), with their scaled [0-1]
   probability density and response variable value}
 \item{\code{mats}}{ An array of stability landscapes}
-\item{\code{matsSt}}{ A list of scaled stability landscapes}}
+\item{\code{matsSt}}{ A list of scaled stability landscapes}
 }
 \description{
 Finds local minima and maxima in slices of stability landscape

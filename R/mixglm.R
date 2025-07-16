@@ -943,7 +943,7 @@ mixglmSimulation <- function(
 #' @param setInit list of initial values which overwrites generated ones.
 #' @param setSeed logical or numeric argument passed to \link[nimble]{runMCMC}. If \code{"TRUE"} or
 #' numeric, R's random number seed is set at the onset of each MCMC chain.
-#' @verbose A logical value specifying if NIMBLE messages should be printed.
+#' @param verbose A logical value specifying if NIMBLE messages should be printed.
 #'
 #' @return A list containing the following components:
 #' \item{\code{mcmcSamples}}{ An \link[coda]{mcmc} object if \code{mcmcChains == 1} or \link[coda]{mcmc.list}

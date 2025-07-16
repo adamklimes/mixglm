@@ -1,0 +1,169 @@
+---
+title: "Case Studies"
+subtitle: "Contents"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    number_sections: true
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  fig.width = 7, fig.height = 5,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+This is an article illustrating the use of *mixglm* package on 2 case studies.
+For more technical illustration of the package functionality, see 
+`vignette("mixglm")` (*mixglm* has to be installed with vignettes).\
+\
+
+# Tree cover in South America
+The first case study replicates analyses by Hirota et al. 
+(<a name="bHirota"></a>[2011](#refHirota)) and Flores et al. 
+(<a name="bFlores"></a>[2024](#refFlores)). These two studies model tree cover 
+for the most of South America and for the Amazon respectively along 
+precipitation gradient. The used tree cover data is from 2001. The replication 
+is done using tree cover for the year 2025 for whole South America. \
+\
+
+## Tree cover dataset
+*mixglm* package provides dataset `treeCover` which includes tree cover, 
+precipitation, temperature, predicted precipitation for the end of 21. century 
+and coordinates for 5,000 data-points across South America. 
+
+```{r dataset}
+library(mixglm)
+
+# see ?treeCover for additional information 
+str(treeCover)
+```
+
+In this case study, we will be modelling stability landscape along precipitation
+and temperature gradients. There are only few observations with very high
+precipitation and very low temperature. That prevents us from estimating
+reliably the stability landscape for these parts of respective gradients. 
+Therefore, we will constrain the analyses to the well represented parts of 
+precipitation (below 4000 mm/yr) and temperature gradients (over 0°C).
+
+```{r dataSelection}
+plot(treeCover$treeCover ~ treeCover$precip, cex = 0.1, ylab = "Tree cover (%)",
+  xlab = "Precipitation (mm/yr)")
+abline(v = 4000, lty = 2)
+plot(treeCover$treeCover ~ treeCover$temp, cex = 0.1, ylab = "Tree cover (%)",
+  xlab = "Temperature (°C)")
+abline(v = 0, lty = 2)
+datTC <- treeCover[treeCover$precip < 4000 & treeCover$temp > 0, ] # 4860 observations
+```
+
+## Stability landscape along precipitation gradient
+First, let's model stability landscape along precipitation gradient. Tree cover 
+has upper (100%) as well as lower (0%) limit, therefore we will use not normal 
+but beta mixture. Beta-distributed variable can have values from 0 to 1 
+(excluding 0 and 1). Thus we calculate proportion of tree cover and shift the 
+values slightly to make sure the dataset does not contain any exact zeros or 
+ones. We also standardize predictors to 0 mean and standard deviation 1 to 
+facilitate the model fit (and ensure the same effect of priors once we use 
+multiple predictors). 
+
+```{r dataPreparation}
+squeeze <- function(x) x * 0.98 + 0.01
+datTC$treeCoverProp <- squeeze(datTC$treeCover / 100)
+
+st <- function(x, y = x) (x - mean(y)) / sd(y)
+datTC$precipSt <- st(datTC$precip)
+datTC$tempSt <- st(datTC$temp)
+```
+
+We need to specify the number of components in the mixture. We should use more
+components than is the number of expected stable states because each stable 
+state can be modeled using multiple components (resulting e.g. in wider basin). 
+Since probability of each component in the mixture is estimated, unnecessary 
+components will have probability close to zero and will be effectively 
+suppressed. We could select the number of components based on an Watanabe-Akaike 
+information criterion (WAIC; <a name="bWatanabe"></a>[Watanabe, 2013](#refWatanabe))
+by running the model with different numbers of components and selecting the 
+one with the lowest WAIC. However, estimates of WAIC are sometimes unstable 
+for mixture models. In conclusion, we recommend using a high number of 
+components and ensure that results are not effected by adding or excluding a 
+component. In this example, we use 7 components. We also limit the number of 
+chains to just 2 (for illustration purposes) to make the fit quicker. 
+
+```{r model}
+numStates <- 7
+set.seed(21)
+mod <- mixglm(
+  stateValModels = treeCoverProp ~ precipSt,
+  stateProbModels = ~ precipSt,
+  statePrecModels = ~ precipSt,
+  stateValError = "beta",
+  inputData = datTC,
+  numStates = numStates,
+  mcmcChains = 2
+)
+```
+
+### Exploration of results
+To explore the results, we start with plotting individual components. It shows us
+how they fit the data and by using the default argument `byChains = TRUE`, we can
+see if chains did not converge well.\
+\
+Upper part of the figure shows probability of each component along the 
+precipitation gradient. Lower part depicts mean and standard deviation for each 
+component along the same gradient.
+
+```{r plot}
+plot(mod)
+```
+
+To get the overall stability landscape, we use the `landscapeMixglm` function. 
+By default, it shows stable states in blue and tipping points in red with scaled
+probability density as a background. Small "bumps" in the stability landscape 
+unlikely denote real stable states. To avoid them, we set `threshold` value to
+be higher than zero.
+
+```{r landscape}
+landscapeMixglm(mod)
+landscapeMixglm(mod, threshold = 0.1)
+```
+
+The same function can be used to visualize uncertainty by plotting stability 
+landscape based on random posterior samples. Background shows standard deviation 
+of these landscapes. Since the plotting can be slow with higher number of 
+samples, we use only 5 here.
+
+```{r uncertainty}
+landscapeMixglm(mod, threshold = 0.1, randomSample = 5)
+```
+
+We can explore stability curves for any precipitation value using the 
+`sliceMixglm` function. Since we used standardized precipitation as a predictor,
+we need to standardize the precipitation value for which we want the stability 
+curve. Apart from the stability curve, the figure shows also estimates of each 
+component at the specified precipitation value.
+
+```{r slice}
+sliceMixglm(mod, value = st(1, datTC$precip))
+```
+
+### Maps of domains and resilience
+Since the stability landscape can be complex with theoretically many stable 
+states, there is no general way to assign observations to domains of individual
+stable states. In this case study, however, it is relatively simple since we 
+identified two clearly distinct stable states. First, we use function `predict`
+to get stable state and tipping points for all modeled observations 
+(along with resilience measures which we will use later).
+
+```{r domains}
+pred <- predict(mod, threshold = 0.1)
+
+```
+
+
+# References
+[↑](#bFlores) <a name="refFlores"></a>Flores, B.M., Montoya, E., Sakschewski, B. et al. 2024. Critical transitions in the Amazon forest system. *Nature* 626, 555–564. [doi.org/10.1038/s41586-023-06970-0](https://doi.org/10.1038/s41586-023-06970-0)\
+\
+[↑](#bHirota) <a name="refHirota"></a>Hirota, M., M. Holmgren, E. H. van Nes, and M. Scheffer. 2011. Global resilience of tropical forest and savanna to critical transitions. *Science* 334: 232–235. [doi.org/10.1126/science.1210657](https://doi.org/10.1126/science.1210657)\
+\
+[↑](#bWatanabe) <a name="refWatanabe"></a>Watanabe, S. 2013. A widely applicable bayesian information criterion. *Journal of Machine Learning Research* 14: 867–897. [Link](https://jmlr.org/papers/v14/watanabe13a.html)

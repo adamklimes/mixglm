@@ -13,13 +13,15 @@
 #' they are valid BUGS variable names.
 #'
 #' @param inName A character vector of variable names
+#' @param warn A logical value specifying if warnings should be printed for any
+#' change in a variable name
 #'
 #' @return A character vector of BUGS-compliant variable names
 #'
 #' @author Joseph D. Chipperfield, \email{joechip90@@googlemail.com}
 #' @keywords internal
 #'
-setBUGSVariableName <- function(inName) {
+setBUGSVariableName <- function(inName, warn = FALSE) {
   outName <- tryCatch(as.character(inName), error = function(err) {
     stop(paste("invalid parameter name:", err, sep = " "))
   })
@@ -36,6 +38,12 @@ setBUGSVariableName <- function(inName) {
   outName <- gsub("7", "Seven", outName, fixed = TRUE)
   outName <- gsub("8", "Eight", outName, fixed = TRUE)
   outName <- gsub("9", "Nine", outName, fixed = TRUE)
+  # Warning for any change
+  if (warn) {
+    warnChange <- function(oldName, newName) if (oldName != newName)
+      warning(paste("Variable name", oldName, "was changed to BUGS compatible:", newName, "\n"))
+    invisible(Map(warnChange, inName, outName))
+  }
   outName
 }
 
@@ -121,7 +129,7 @@ mixglmSpecification <- function(
     inherits(inVal, "formula")
   }
   # The supported error distributions
-  supportedError <- c("gaussian", "gamma", "beta", "negbinomial") #, "betabinomial"
+  supportedError <- c("gaussian", "gamma", "beta", "negbinomial")
   # The suported link functions
   supportedLink <- c("identity", "log", "logit", "probit", "cloglog")
   # Sanity test the error distribution for the state error
@@ -149,9 +157,6 @@ mixglmSpecification <- function(
     } else if(tolower(inStateValError[1]) == "negbinomial") {
       inStateValError <- factor("negbinomial", levels = supportedError)
       inLinkFunction <- factor("log", levels = supportedLink)
-#    } else if(tolower(inStateValError[1]) == "betabinomial") {
-#      inStateValError <- factor("betabinomial", levels = supportedError)
-#      inLinkFunction <- factor("logit", levels = supportedLink)
     } else {
       stop("selected error family is not supported")
     }
@@ -292,9 +297,9 @@ mixglmSpecification <- function(
     stop("response variable does not have the same length as the predictor variables")
   }
   # Convert the name of the response variable to something BUGS-friendly
-  respVariablesBUGS <- setBUGSVariableName(respVariables)
+  respVariablesBUGS <- setBUGSVariableName(respVariables, warn = TRUE)
   # Rename the covariates from the model matrix to something BUGS-friendly
-  covariatesBUGS <- setBUGSVariableName(colnames(modelMatrix))
+  covariatesBUGS <- setBUGSVariableName(colnames(modelMatrix), warn = TRUE)
   # Very occasionally the conversion of the covariate names results in duplicates: this line protects from the possibility
   covariatesBUGS <- setNames(
     ifelse(duplicated(covariatesBUGS), paste(covariatesBUGS, setBUGSVariableName(as.character(1:length(covariatesBUGS))), sep = "_"), covariatesBUGS),
@@ -447,9 +452,6 @@ mixglmSpecification <- function(
         sep = ""),
       "negbinomial" = paste(
         "\t\t", respVariablesBUGS, "[dataIter] ~ dnegbinStateValueMembership(linStateVal[dataIter, 1:numStates], linStatePrec[dataIter, 1:numStates], linStateProb[dataIter, 1:numStates])",
-        sep = ""),
-      "betabinomial" = paste(
-        "\t\t", respVariablesBUGS, "[dataIter] ~ dbetabinStateValueMembership(linStateVal[dataIter, 1:numStates], linStatePrec[dataIter, 1:numStates], linStateProb[dataIter, 1:numStates], numTrials[dataIter])",
         sep = "")
     ), sep = "\n")
     # Create a vector of potential initial values for the model parameters
@@ -516,7 +518,7 @@ mixglmSpecification <- function(
         sep = "\n"),
       # Set the model specification text for the state probability model: there is no state probability model because there is only one state
       "\t\t# There is no state probability model because there is only one state",
-      # Set teh model specification text for the state precision model
+      # Set the model specification text for the state precision model
       ifelse(is.na(formulaStrings[1, 3]),
         "\t\t# Set the model specification for the state precision model\n\t\tlog(linStatePrec[dataIter]) <- intercept_statePrec",
         paste(
@@ -530,9 +532,7 @@ mixglmSpecification <- function(
       "gaussian" = paste("\t\t", respVariablesBUGS, "[dataIter] ~ dnorm(linStateVal[dataIter], linStatePrec[dataIter])", sep = ""),
       "gamma" = paste("\t\t", respVariablesBUGS, "[dataIter] ~ dgamma(mean = linStateVal[dataIter], sd = pow(linStatePrec[dataIter], -0.5))", sep = ""),
       "beta" = paste("\t\t", respVariablesBUGS, "[dataIter] ~ dbeta(mean = linStateVal[dataIter], sd = pow(linStatePrec[dataIter], -0.5))", sep = ""),
-#      "negbinomial" = paste("\t\t", respVariablesBUGS, "[dataIter] ~ dnegbin(\n\t\t\t1.0 - linStateVal[dataIter] * linStatePrec[dataIter], \n\t\t\tlinStateVal[dataIter] * linStateVal[dataIter] * linStatePrec[dataIter] / (1.0 - linStateVal[dataIter] * linStatePrec[dataIter]))", sep = ""),
-      "negbinomial" = paste("\t\t", respVariablesBUGS, "[dataIter] ~ dnegbin(\n\t\t\tlinStateVal[dataIter] * linStatePrec[dataIter], \n\t\t\tlinStateVal[dataIter] * linStateVal[dataIter] * linStatePrec[dataIter] / (1.0 - linStateVal[dataIter] * linStatePrec[dataIter]))", sep = ""),
-      "betabinomial" = paste("\t\t", respVariablesBUGS, "[dataIter] ~ dbetabin(mean = linStateVal[dataIter], prec = linStatePrec[dataIter], size = numTrials[dataIter])")
+      "negbinomial" = paste("\t\t", respVariablesBUGS, "[dataIter] ~ dnegbin(\n\t\t\tlinStateVal[dataIter] * linStatePrec[dataIter], \n\t\t\tlinStateVal[dataIter] * linStateVal[dataIter] * linStatePrec[dataIter] / (1.0 - linStateVal[dataIter] * linStatePrec[dataIter]))", sep = "")
     ), sep = "\n")
     # Create a vector of potential initial values for the model parameters
     initialValues <- setNames(rnorm(length(stateValCovs), 0.0, 1.0), paste(stateValCovs, "_stateVal", sep = ""))
@@ -574,10 +574,6 @@ mixglmSpecification <- function(
     numStates = inNumStates,
     intercept = rep(1.0, nrow(modelMatrix))
   ), as.list(as.data.frame(modelMatrix)))
-  if(as.character(inStateValError) == "betabinomial") {
-    # Add the number of trials if the betabinomial error distribution is being used
-    modelConstants <- append(modelConstants, list(numTrials = numTrials))
-  }
   # Restructrue the initial values as a list
   vectorNames <- unique(gsub("\\[.*$", "", names(initialValues), perl = TRUE))
   initialValuesList <- setNames(lapply(X = vectorNames, FUN = function(curVecName, initialValues, inNumStates) {
@@ -640,6 +636,8 @@ mixglmSpecification <- function(
 #' function is used for initial value of intercept of mean for components apart
 #' from the first one. Note that for intercept of precision of beta
 #' distribution, \code{genFn(x) + 6} is used.
+#' @param checkForSimulation A logical value specifying if only a check of initial values
+#' should be done. Mainly for internal use.
 #'
 #' @return A list of initial values
 #'
@@ -647,7 +645,14 @@ mixglmSpecification <- function(
 #' @keywords internal
 #'
 checkInit <- function(stateValModels, statePrecModels, inputData, setInit,
-  errorModel, linkFunction, Nstates, genNew = FALSE, genFn = function(x) rnorm(1, 0, 2)){
+  errorModel, linkFunction, Nstates, genNew = FALSE, genFn = function(x) rnorm(1, 0, 2), checkForSimulation = FALSE){
+  # input check
+  if (!is.numeric(Nstates)) stop("'Nstates' has to be numeric")
+  if (!is.logical(genNew)) stop("'genNew' has to be logical")
+  if (!is.function(genFn)) stop("'genFn' has to be a function")
+  if (!is.logical(checkForSimulation)) stop("'checkForSimulation' has to be logical")
+  #_
+  # A function for calculation of mean or precision for all observations
   evalModMat <- function(modForm, formType, inputData, initVal, state){
     if (is.list(modForm)) modForm <- modForm[[state]]
     if (formType == "stateVal") initVal$intercept_stateVal <- cumsum(initVal$intercept_stateVal)
@@ -662,20 +667,23 @@ checkInit <- function(stateValModels, statePrecModels, inputData, setInit,
     init <- unlist(lapply(initAux, function(x, state) x[state], state))
     list(val = as.vector(modMat %*% init), ID = IDaux[matchID])
   }
+  # Auxiliary functions and data preparation
   auxID <- grep("^intercept", names(setInit))
   initVal <- c(setInit[auxID], setInit[-auxID])
   checkFun <- switch(as.character(errorModel),
-                     gaussian = function(M, P) TRUE,
-                     gamma = function(M, P) M > 0 & P > 0,
-                     beta = function(M, P) {A <- M * M * (1 - M) * P - M; B <- M * (1 - M)^2 * P + M - 1; A > 0 & B > 0},
-                     negbinomial = function(M, P) {r <- M * M * P / (1 - P * M); r >= 0 & r <= 1})
+                     gaussian = function(M, P) is.finite(M) & is.finite(P),
+                     gamma = function(M, P) M > 0 & P > 0 & is.finite(M) & is.finite(P),
+                     beta = function(M, P) {A <- M * M * (1 - M) * P - M; B <- M * (1 - M)^2 * P + M - 1; A > 0 & B > 0 & is.finite(A) & is.finite(B)},
+                     negbinomial = function(M, P) {r <- M * M * P / (1 - P * M); r >= 0 & r <= 1 & is.finite(r)})
   invlink <- switch(as.character(linkFunction), identity = function(x) x, log = exp,
                     logit = function(x) exp(x)/(1+exp(x)), probit = pnorm, cloglog = function(x) 1 - exp(-exp(x)))
   genP <- if (errorModel == "beta") function(x) genFn(x) + 6 else genFn
   genFnAbs <- function(x) if (x != 1) abs(genFn(x)) else genFn(x)
   updateItem <- function(x, state, fn) Map(function(x, state, fn) {x[state] <- fn(state); x}, x, state, list(fn))
+  # Checking and generation of initial values for each state
   for (state in 1:Nstates){
     i <- 1
+    # Generation of new initial values when genNew = TRUE
     if (genNew) {
       M <- evalModMat(stateValModels, "stateVal", inputData, initVal, state)
       P <- evalModMat(statePrecModels, "statePrec", inputData, initVal, state)
@@ -685,12 +693,13 @@ checkInit <- function(stateValModels, statePrecModels, inputData, setInit,
       initVal[P$ID[-1]] <- updateItem(initVal[P$ID][-1], state, genFn)
       if (state > 1) initVal[grep("_stateProb$", names(initVal))] <- updateItem(initVal[grep("_stateProb$", names(initVal))], state, genFn)
     }
+    # Loop generating and checking initial values
     repeat{
       M <- evalModMat(stateValModels, "stateVal", inputData, initVal, state)
       P <- evalModMat(statePrecModels, "statePrec", inputData, initVal, state)
-      if (all(checkFun(invlink(M$val), exp(P$val)))) break
+      if (all(checkFun(invlink(M$val), exp(P$val)))) break else if (checkForSimulation) stop(paste("These coefficient values (in combination with predictors) are not valid for the", errorModel, "distribution. See help('mixglmSimulation')."))
       i <- i + 1
-      if (i > 999) stop("Legitimate initial values fail to be fould automatically. You can provide them as an argument. Standardization of predictors might also help.")
+      if (i > 999) stop("Legitimate initial values failed to be fould automatically. You can provide them as an argument. Standardization of predictors might also help.")
       initVal[M$ID[1]] <- updateItem(initVal[M$ID][1], state, genFnAbs)
       initVal[M$ID[-1]] <- updateItem(initVal[M$ID][-1], state, genFn)
       initVal[P$ID[1]] <- updateItem(initVal[P$ID][1], state, genP)
@@ -735,9 +744,18 @@ checkInit <- function(stateValModels, statePrecModels, inputData, setInit,
 #' @param stateValError A description of the error distribution and link function to be used
 #' in the model describing the ecosystem state value.  This can be from the \link[stats]{family}
 #' specification or \code{character} scalar with the following possible values: \code{"gaussian"},
-#' \code{"gamma"}, \code{"beta"}, \code{"negbinomial"}, or \code{"betabinomial"}.
+#' \code{"gamma"}, \code{"beta"}, or \code{"negbinomial"}.
 #' @param coefficientValues A list containing the values of the coefficients to use in the
 #' simulation.
+#'
+#' @details Used parametrization of gamma, beta, and negbinomial distribution using mean and
+#' precision is internally reparametrized into typical shape and rate parametrization for gamma,
+#' two shape parameters for beta, and size and probability parameters for negbinomial. For all
+#' these distributions, their parameters are constrained (e.g. shape parameters of the beta
+#' distribution have to be positive). Consequently, not all combinations of mean and precision
+#' can be used.
+#' Generally to get legitimate coefficient values: Standardize your predictors and start with low
+#' coefficient values (for beta distribution, increase precision).
 #'
 #' @return A list containg a vector of simulated values for each stochastic node.  In addition the
 #' following elements are appended to the list:
@@ -783,6 +801,10 @@ mixglmSimulation <- function(
   stateValError = gaussian,
   coefficientValues = NULL
 ) {
+  # input check
+  if (!is.numeric(numSims)) stop("'numSims' has to be numeric")
+  if (!(is.numeric(numStates) | is.null(numStates))) stop("'numStates' has to be numeric or NULL")
+  #_
   # Ensure that the coefficient values are correctly specified
   inCoefficientValues <- list()
   if(!is.null(coefficientValues)) {
@@ -805,8 +827,7 @@ mixglmSimulation <- function(
     "gaussian" = 0.0,
     "gamma" = 0.1,
     "beta" = 0.5,
-    "negbinomial" = 0,
-    "betabinomial" = 0
+    "negbinomial" = 0
     ), length(modelSpecification$data[[1]]))
   # If coefficient values have been provided then use those in the model initialisation
   if(length(inCoefficientValues) > 0 && !is.null(names(inCoefficientValues))) {
@@ -825,6 +846,9 @@ mixglmSimulation <- function(
       warning("some coefficient names are not present in the model: ", print(names(inCoefficientValues)[!isInModel], collapse = ", "))
     }
   }
+  # Check coef values
+  checkInit(stateValModels, statePrecModels, inputData, modelSpecification$initialValues,
+            stateValError, modelSpecification$linkFunction, numStates, checkForSimulation = TRUE)
   # Initialise the NIMBLE model
   modelObject <- nimbleModel(modelSpecification$modelCode, constants = modelSpecification$constants, data = modelSpecification$data, inits = modelSpecification$initialValues)
   # Specify a function to simulate data (of a particular data node)
@@ -919,6 +943,7 @@ mixglmSimulation <- function(
 #' @param setInit list of initial values which overwrites generated ones.
 #' @param setSeed logical or numeric argument passed to \link[nimble]{runMCMC}. If \code{"TRUE"} or
 #' numeric, R's random number seed is set at the onset of each MCMC chain.
+#' @verbose A logical value specifying if NIMBLE messages should be printed.
 #'
 #' @return A list containing the following components:
 #' \item{\code{mcmcSamples}}{ An \link[coda]{mcmc} object if \code{mcmcChains == 1} or \link[coda]{mcmc.list}
@@ -979,19 +1004,26 @@ mixglm <- function(
       int = "dnorm(0.0, 0.001)",
       pred = "dnorm(0.0, 0.001)")),
   setInit = NULL,
-  setSeed = FALSE
+  setSeed = FALSE,
+  verbose = TRUE
 ) {
+  # input check
+  if (!(is.numeric(numStates) | is.null(numStates))) stop("'numStates' has to be numeric or NULL")
+  if (!is.numeric(mcmcIters)) stop("'mcmcIters' has to be numeric")
+  if (!is.numeric(mcmcBurnin)) stop("'mcmcBurnin' has to be numeric")
+  if (!is.numeric(mcmcThin)) stop("'mcmcThin' has to be numeric")
+  if (!(is.logical(setSeed) | is.numeric(setSeed))) stop("'setSeed' has to be logical or numeric")
+  if (!is.logical(verbose)) stop("'verbose' has to be logical")
+  #_
+  saveNimbleOpt <- nimbleOptions()
+  nimbleOptions(verbose = verbose)
   # Create a NIMBLE model specification
   modelSpecification <- mixglmSpecification(stateValModels, stateProbModels, statePrecModels, inputData, numStates, stateValError, setPriors)
   # Change initial values if provided
   modelSpecification$initialValues <- if (!is.null(setInit)) setInit else checkInit(stateValModels, statePrecModels, inputData, modelSpecification$initialValues, modelSpecification$errorModel, modelSpecification$linkFunction, modelSpecification$constants$numStates)
   modelObject <- nimbleModel(modelSpecification$modelCode, constants = modelSpecification$constants, data = modelSpecification$data, inits = modelSpecification$initialValues)
   # Build the MCMC object and compile it
-  # varsToMonitor <- c(modelObject$getVarNames(), "linStateVal", "linStatePrec")
-  # if (grepl("linStateProb", modelSpecification$modelText)) varsToMonitor <- c(varsToMonitor, "linStateProb")
   # Monitor only parameters
-  # varsToMonitor <- modelObject$getVarNames()
-  # varsToMonitor <- varsToMonitor[!varsToMonitor %in% c(names(modelSpecification$data), "linStateVal", "linStatePrec", "linStateProb")]
   varsToMonitor <- names(modelSpecification$initialValues)
   varsToMonitor <- varsToMonitor[varsToMonitor %in% modelObject$getVarNames()]
   mcmcObject <- buildMCMC(modelObject, enableWAIC = TRUE, monitors = varsToMonitor)
@@ -1001,6 +1033,7 @@ mixglm <- function(
   # Structure the compiled model, the MCMC samples, and the model specification into a list
   out <- append(list(mcmcSamples = mcmcOutput, compiledModel = mcmcObjectCompiled), modelSpecification)
   class(out) <- "mixglm"
+  nimbleOptions(saveNimbleOpt)
   out
 }
 
@@ -1024,7 +1057,20 @@ mixglm <- function(
 #' lines for small standard deviation visible)
 #' @param xlab a label for the x axis, defaults to predictor name.
 #' @param ylab a label for the y axis, defaults to response name.
+#' @param doPlot logical value indicating if plotting should be done
+#' @param xSamples integer value specifying the number of values regularly
+#' distributed along x-axis at which estimates are calculated
 #' @param ... additional arguments passed to \link[graphics]{plot}
+#'
+#' @return Returns invisibly a list of lists for each chain. These lists
+#' contain a dataframe for each mixture component:
+#' \item{\code{x}}{ Values along x-axis for which estimates are calculated}
+#' \item{\code{prob}}{ Probability of the component in the mixture along x-axis}
+#' \item{\code{yEst}}{ Mean of the component in the mixture along x-axis}
+#' \item{\code{yLow}}{ Mean minus \code{SDmult} times standard deviation of the
+#' component in the mixture along x-axis}
+#' \item{\code{yUpp}}{  Mean plus \code{SDmult} times standard deviation of the
+#' component in the mixture along x-axis}
 #'
 #' @author Adam Klimes
 #' @examples \dontrun{
@@ -1047,7 +1093,7 @@ mixglm <- function(
 #'
 plot.mixglm <- function(x, form = NULL, byChains = TRUE, transCol = TRUE,
   addWAIC = FALSE, setCol = c("#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02", "#a6761d", "#666666"),
-  drawAxes = TRUE, SDmult = 1, xlab = NULL, ylab = NULL, ...) {
+  drawAxes = TRUE, SDmult = 1, xlab = NULL, ylab = NULL, doPlot = TRUE, xSamples = 100, ...) {
   # input check
   form <- if (is.null(form))
     formula(paste(names(x$data), "~", names(x$constants)[4])) else formula(form)
@@ -1062,6 +1108,8 @@ plot.mixglm <- function(x, form = NULL, byChains = TRUE, transCol = TRUE,
   if (!is.logical(addWAIC)) stop("'addWAIC' has to be logical")
   if (!is.logical(drawAxes)) stop("'drawAxes' has to be logical")
   if (!is.numeric(SDmult)) stop("'SDmult' has to be numeric")
+  if (!is.logical(doPlot)) stop("'doPlot' has to be logical")
+  if (!is.numeric(xSamples)) stop("'xSamples' has to be numeric")
   #_
   resp <- x$data[[1]]
   dat <- data.frame(x$data,
@@ -1071,31 +1119,37 @@ plot.mixglm <- function(x, form = NULL, byChains = TRUE, transCol = TRUE,
   auxRange <- max(resp) - min(resp)
   invlink <- switch(as.character(x$linkFunction), identity = function(x) x, log = exp,
     logit = function(x) exp(x)/(1+exp(x)), probit = pnorm, cloglog = function(x) 1 - exp(-exp(x)))
-  plot(form, data = dat, ylim = c(min(resp) - 0.05 * auxRange, max(resp) + 0.3 * auxRange),
+  # Plotting of points and axes
+  if (doPlot){
+    plot(form, data = dat, ylim = c(min(resp) - 0.05 * auxRange, max(resp) + 0.3 * auxRange),
        yaxs = "i", axes = FALSE, ann = FALSE, ...)
-  usr <- par("usr")
-  maxY <- max(resp) + 0.05 * auxRange
-  axis(1, labels = c("", ""), at = c(2*usr[1]-usr[2], 2*usr[2]-usr[1]))
-  axis(2, labels = c("", ""), at = c(2*usr[3]-usr[4], maxY), lwd.ticks = 0)
-  axis(1, labels = xlab, at = mean(usr[1:2]), line = 2, tick = FALSE)
-  if (drawAxes) {
-    axis(1)
-    yaxis <- head(axTicks(2), -1)
-    axis(2, labels = yaxis, at = yaxis, las = 2)
+    usr <- par("usr")
+    maxY <- max(resp) + 0.05 * auxRange
+    axis(1, labels = c("", ""), at = c(2*usr[1]-usr[2], 2*usr[2]-usr[1]))
+    axis(2, labels = c("", ""), at = c(2*usr[3]-usr[4], maxY), lwd.ticks = 0)
+    axis(1, labels = xlab, at = mean(usr[1:2]), line = 2, tick = FALSE)
+    if (drawAxes) {
+      axis(1)
+      yaxis <- head(axTicks(2), -1)
+      axis(2, labels = yaxis, at = yaxis, las = 2)
+    }
+    axis(2, labels = 0:1, at = max(resp) + c(0.1, 0.25) * auxRange, las = 2)
+    abline(h = maxY, lwd = 3)
+    abline(h = max(resp) + 0.1 * auxRange, lty = 2)
+    abline(h = max(resp) + 0.25 * auxRange, lty = 2)
+    axis(2, labels = "Probability", at = max(resp) + 0.175 * auxRange, line = 2, tick = FALSE)
+    axis(2, labels = ylab, at = mean(range(resp)), line = 2, tick = FALSE)
+    if (addWAIC) text(par("usr")[2] - (par("usr")[2] - par("usr")[1]) * 0.2,
+      max(resp) + 0.175 * auxRange, paste("WAIC:", round(x$mcmcSamples$WAIC$WAIC, 1)))
   }
-  axis(2, labels = 0:1, at = max(resp) + c(0.1, 0.25) * auxRange, las = 2)
-  abline(h = maxY, lwd = 3)
-  abline(h = max(resp) + 0.1 * auxRange, lty = 2)
-  abline(h = max(resp) + 0.25 * auxRange, lty = 2)
-  axis(2, labels = "Probability", at = max(resp) + 0.175 * auxRange, line = 2, tick = FALSE)
-  axis(2, labels = ylab, at = mean(range(resp)), line = 2, tick = FALSE)
-  if (addWAIC) text(par("usr")[2] - (par("usr")[2] - par("usr")[1]) * 0.2,
-    max(resp) + 0.175 * auxRange, paste("WAIC:", round(x$mcmcSamples$WAIC$WAIC, 1)))
+  # Calculation of component parameters
   parsTab <- summary(x, byChains = byChains, absInt = TRUE, digit = NULL)
   parsTab <- lapply(parsTab, function(x) {x[is.na(x)] <- 0; x})
+  # A function for plotting components of all states per chain
   auxLines <- function(parsChain, dat, mod){
+    # Selection of parameters
     nstates <- mod$constants$numStates
-    xx <- seq(min(dat[, svar]), max(dat[, svar]), length.out = 100)
+    xx <- seq(min(dat[, svar]), max(dat[, svar]), length.out = xSamples)
     ind <- NULL
     cNames <- rownames(parsChain)
     if (nstates > 1) {
@@ -1115,33 +1169,45 @@ plot.mixglm <- function(x, form = NULL, byChains = TRUE, transCol = TRUE,
       probVals[is.na(probVals)] <- 1
       probVals <- probVals / rowSums(probVals)
       probVals[is.nan(probVals)] <- 1
-      }
+    }
+    out <- list()
+    # Calculation and plotting of lines for each state
     for (i in 1:nstates){
       cols <- setCol[i]
       if (nstates > 1) {
-        lines(xx, max(resp) + 0.1 * auxRange + probVals[, i] * 0.15 * auxRange,
+        # Plotting of probability lines
+        if (doPlot) lines(xx, max(resp) + 0.1 * auxRange + probVals[, i] * 0.15 * auxRange,
           col = setCol[i], lwd = 3)
+        # Setting transparent colours
         if (transCol) {
           rgbVec <- col2rgb(cols)[, 1]
           cols <- rgb(rgbVec[1], rgbVec[2], rgbVec[3],
             alpha = 40 + probVals[, i] * 215, maxColorValue = 255)
         }
       }
+      # Calculation of mean and variance lines
       sdVals <- 1 / sqrt(exp(precInt[i] + precCov[i] * xx))
       yEst <- do.call(invlink, list(valInt[i] + valCov[i] * xx))
       uci <- do.call(invlink, list(valInt[i] + valCov[i] * xx + sdVals * SDmult))
       lci <- do.call(invlink, list(valInt[i] + valCov[i] * xx - sdVals * SDmult))
-      yEstSel <- yEst < maxY
-      uciSel <- uci < maxY
-      lciSel <- lci < maxY
-      segments(head(xx[yEstSel], -1), head(yEst[yEstSel], -1), x1 = tail(xx[yEstSel], -1),
-        y1 = tail(yEst[yEstSel], -1), col = if (length(cols) > 1) cols[yEstSel] else cols, lwd = 3)
-      lines(xx[uciSel], uci[uciSel], col = setCol[i], lty = 2, lwd = 1)
-      lines(xx[lciSel], lci[lciSel], col = setCol[i], lty = 2, lwd = 1)
+      # Plotting mean and variance lines
+      if (doPlot){
+        # Constraining the lines so they do not overlap probability section of the figure
+        yEstSel <- yEst < maxY
+        uciSel <- uci < maxY
+        lciSel <- lci < maxY
+        segments(head(xx[yEstSel], -1), head(yEst[yEstSel], -1), x1 = tail(xx[yEstSel], -1),
+          y1 = tail(yEst[yEstSel], -1), col = if (length(cols) > 1) cols[yEstSel] else cols, lwd = 3)
+        lines(xx[uciSel], uci[uciSel], col = setCol[i], lty = 2, lwd = 1)
+        lines(xx[lciSel], lci[lciSel], col = setCol[i], lty = 2, lwd = 1)
+      }
+      # Preparation of output values
+      auxList <- setNames(list(data.frame(x = xx, prob = probVals[, i], yEst = yEst, yLow = lci, yUpp = uci)), paste0("state", i))
+      out <- c(out, auxList)
     }
+    out
   }
-  lapply(parsTab, auxLines, dat, x)
-  invisible()
+  invisible(lapply(parsTab, auxLines, dat, x))
 }
 
 ### 3.2. ==== Summary of a mixture model ====
@@ -1190,23 +1256,27 @@ plot.mixglm <- function(x, form = NULL, byChains = TRUE, transCol = TRUE,
 summary.mixglm <- function(object, byChains = FALSE, digit = 4L,
   absInt = FALSE, randomSample = NULL, ...){
   # input check
+  if (!inherits(object, "mixglm")) stop("'object' must be an object of class 'mixglm'")
   if (!is.logical(byChains)) stop("'byChains' has to be logical")
   if (!(is.numeric(digit) | is.null(digit))) stop("'digit' has to be NULL or numeric")
   if (!is.logical(absInt)) stop("'absInt' has to be logical")
   if (!(is.numeric(randomSample) | is.null(randomSample)))
     stop("'randomSample' has to be NULL or numeric")
   #_
+  # Selection of mcmc samples
   mcmcList <- if (is.list(object$mcmcSamples$samples))
     object$mcmcSamples$samples else list(object$mcmcSamples$samples)
   varsSamples <- lapply(mcmcList,
     function(x) x[, !grepl(paste0("^lifted|^linState|^", names(object$data)), colnames(x))])
   if (!byChains) varsSamples <- list(do.call(rbind, varsSamples))
+  # Calculation of absolute integers
   sepInt <- function(samp){
     scol <- grepl("intercept_stateVal", colnames(samp))
     samp[, scol] <- t(apply(samp, 1, function(x, scol) cumsum(x[scol]), scol))
     samp
   }
   if (absInt) varsSamples <- lapply(varsSamples, sepInt)
+  # Calculation of quantiles or selection of random samples
   if (is.null(randomSample)){
     auxSummary <- function(x)
       c(mean = mean(x), sd = sd(x), quantile(x, c(0.025,0.25,0.75,0.975), na.rm = TRUE))
@@ -1273,17 +1343,24 @@ predict.mixglm <- function(object, newdata = NULL, samples = 1000, threshold = 0
   # input check
   if (!(is.null(newdata) | is.data.frame(newdata)))
     stop("'newdata' has to be NULL or data.frame")
+  if (!inherits(object, "mixglm")) stop("'object' must be an object of class 'mixglm'")
+  if (!is.numeric(samples)) stop("'samples' has to be numeric")
+  if (!is.numeric(threshold)) stop("'threshold' has to be numeric")
   #_
   respVal <- NULL
+  # Extracting response data if provided in newdata
   if (names(object$data) %in% colnames(newdata)) {
     respVal <- newdata[, names(object$data)]
     newdata <- newdata[, -which(colnames(newdata) == names(object$data)), drop = FALSE]
   }
+  # Setting newdata if missing as fitted data
   if (is.null(newdata)) {
     respVal <- object$data[[1]]
     newdata <- as.data.frame(object$constants[-(1:3)])
   }
+  # Setting response if missing as fitted data
   if (is.null(respVal)) respVal <- object$data[[1]]
+  # Calculating slices, their stable states and tipping points
   form <- formula(paste(names(object$data), "~", colnames(newdata)[1]))
   slices <- sliceMixglm(object, form, value = newdata, byChains = FALSE, doPlot = FALSE, samples = samples)
   tipStableAll <- getMinMax(slices, threshold)
@@ -1294,6 +1371,7 @@ predict.mixglm <- function(object, newdata = NULL, samples = 1000, threshold = 0
     dist <- abs(resp - x)
     which(dist == min(dist))[1]
   }
+  # Calculation of resilience metrics
   potentEn <- unlist(Map(function(x, y) -x[y]+1, probCurve, vapply(respVal, auxFn, FUN.VALUE = 1)))
   getClosest <- function(x, targetResp, state = 1, getVar = "respDist"){
     xSel <- x[x$state == state & x$catSt == 1, ]
@@ -1301,6 +1379,7 @@ predict.mixglm <- function(object, newdata = NULL, samples = 1000, threshold = 0
     if (length(distT) == 0) distT <- NA
     cbind(xSel[distT == min(distT), ], respDist = min(distT))[, getVar]
   }
+  # Output preparation
   obsDat <- NULL
   if (!is.null(respVal)){
     obsDat <- data.frame(
@@ -1332,8 +1411,14 @@ predict.mixglm <- function(object, newdata = NULL, samples = 1000, threshold = 0
 #' @export
 #'
 coef.mixglm <- function(object, digit = NULL, ...){
+  # input check
+  if (!inherits(object, "mixglm")) stop("'object' must be an object of class 'mixglm'")
+  if (!(is.numeric(digit) | is.null(digit))) stop("'digit' has to be numeric or NULL")
+  #_
   s <- summary(object, digit = digit)[[1]]
+  # A function to extract from summary parameters for each state
   getPars <- function(state, s){
+    # An auxiliary function to get parameters for mean or precision or probability
     auxGetPars <- function(type, state, s){
       stateIndex <- if (Nstates == 1) "$" else paste0("\\[", state, "\\]$")
       aux <- s[grep(paste0("_state", type, stateIndex), rownames(s)), "mean", drop = FALSE]
@@ -1341,7 +1426,9 @@ coef.mixglm <- function(object, digit = NULL, ...){
       data.frame(ID = rownames(aux), aux)
     }
     types <- if (Nstates == 1) c("Val", "Prec") else c("Val", "Prec", "Prob")
+    # Extraction of parameters for each type
     parsPerType <- lapply(types, auxGetPars, state, s)
+    # Merging parameters into one table
     mergeAll <- function(x, y) merge(x, y, by = "ID", all = TRUE)
     out <- Reduce(mergeAll, parsPerType)
     rownames(out) <- out$ID
@@ -1369,6 +1456,9 @@ coef.mixglm <- function(object, digit = NULL, ...){
 #' @export
 #'
 print.mixglm <- function(x, ...){
+  # input check
+  if (!inherits(x, "mixglm")) stop("'x' must be an object of class 'mixglm'")
+  #_
   WAIC <- x$mcmcSamples$WAIC
   cat("Multinomial Ecosystem State Model\n")
   cat("WAIC:", WAIC$WAIC, "\n")
@@ -1392,6 +1482,11 @@ print.mixglm <- function(x, ...){
 #' @export
 #'
 str.mixglm <- function(object, max.level = 2, give.attr = FALSE, ...){
+  # input check
+  if (!inherits(object, "mixglm")) stop("'object' must be an object of class 'mixglm'")
+  if (!is.numeric(max.level)) stop("'max.level' has to be numeric")
+  if (!is.logical(give.attr)) stop("'give.attr' has to be logical")
+  #_
   cat("List of", length(object), "\n")
   NextMethod(str, object, max.level = max.level, give.attr = give.attr, ...)
 }
@@ -1413,17 +1508,27 @@ str.mixglm <- function(object, max.level = 2, give.attr = FALSE, ...){
 #' @keywords internal
 #'
 findMin <- function(x, extremes = TRUE){
+  # input check
+  if (!is.numeric(x)) stop("'x' has to be numeric")
+  if (!is.logical(extremes)) stop("'extremes' has to be logical")
+  #_
   dfXin <- diff(x)
+  # Calculate lengths of flat sequences
   seqCount <- diff(c(0, which(dfXin != 0), length(x)))
   Nflat <- rep(seqCount, seqCount) - 1
+  # Remove duplicates in flat sequences to identify turning points
   xClear <- x[c(TRUE,  dfXin != 0)]
   dfX <- diff(xClear)
+  # Find location of local minima - sign change
   loc <- which(diff(sign(dfX)) == 2) + 1
   if (extremes){
+    # Include extremes if they are minima
     if (dfX[1] > 0) loc <- c(1, loc)
     if (tail(dfX, 1) < 0) loc <- c(loc, length(xClear))
   }
+  # Map minima locations back
   inLoc <- seq_along(x)[c(TRUE, dfXin != 0)][loc]
+  # Flat sequences: average position in a flat sequence if minimum is there
   inLoc[inLoc %in% which(dfXin == 0)] <-
     0.5 * Nflat[inLoc[inLoc %in% which(dfXin == 0)]] + inLoc[inLoc %in% which(dfXin == 0)]
   inLoc
@@ -1453,8 +1558,11 @@ findMin <- function(x, extremes = TRUE){
 #' @keywords internal
 #'
 getMinMax <- function(slices, threshold = 0.0){
+  # input check
   if (!is.numeric(threshold)) stop("'threshold' has to be numeric")
   if (threshold > 1) warning("maximum value for 'threshold' is 1")
+  #_
+  # A function to get probability density and response values for minima or maxima
   getMin <- function(x, resp, extremes = TRUE, inv = FALSE) {
     id <- findMin(x, extremes = extremes)
     respOut <- resp[id] * (1 - id %% 1) + resp[min(id + 1, length(resp))] * id %% 1
@@ -1466,18 +1574,22 @@ getMinMax <- function(slices, threshold = 0.0){
     if (inv) probDens <- -probDens
     data.frame(probDens = probDens, resp = respOut)
   }
+  # A function to combine tipping points and stable states and categorize them based on threshold
   combStates <- function(tip, state, threshold){
     comb <- rbind(cbind(tip, state = 0), cbind(state, state = 1))
     combSort <- comb[order(comb$resp), ]
     if (nrow(combSort) < 3 | threshold == 0) catSt <- 1 else {
+      # Determine differences large than threshold
       dif <- (abs(diff(-combSort$probDens)) > threshold) + 0
       groups <- lapply(0:sum(dif), function(x) which(x == c(0,cumsum(dif))))
       sdf <- sign(diff(-combSort$probDens))
+      # Determine direction of differences: mins/maxs
       catDf <- -diff(c(-1, sdf[dif == 1], 1))/2
       mins <- vapply(groups[catDf == -1],
         function(x) x[which(-combSort$probDens[x] == min(-combSort$probDens[x]))], FUN.VALUE = 1)
       maxs <- vapply(groups[catDf == 1],
         function(x) x[which(-combSort$probDens[x] == max(-combSort$probDens[x]))], FUN.VALUE = 1)
+      # Include intermediate increasing/decreasing parts
       auxChange <- function(x, signC) {
         comp <- diff(-combSort$probDens[c(min(x)-1, max(x))])
         if (length(comp) == 0) comp <- -1
@@ -1494,10 +1606,10 @@ getMinMax <- function(slices, threshold = 0.0){
   }
   mat <-  slices[[1]]
   mats <- array(do.call(c, mat), dim = c(dim(mat[[1]]), length(mat)))
+  # Standardization of curves to 0-1
   scaleCurve <- function(x) (x - min(x)) / max((x - min(x)))
   matsSt <- apply(mats, 3, function(x) apply(x, 2, scaleCurve), simplify = FALSE)
-  maxs <- lapply(matsSt, function(y) apply(y, 2, findMin, extremes = FALSE, simplify = FALSE))
-  mins <- lapply(matsSt, function(y) apply(y, 2, function(x) findMin(-x), simplify = FALSE))
+  # Identify stable states, tipping points and combine them
   tipPoints <- lapply(matsSt, function(y) apply(y, 2, getMin, slices$resp, extremes = FALSE))
   stableStates <- lapply(matsSt, function(y) apply(-y, 2, getMin, slices$resp, inv = TRUE))
   tipStable <- Map(Map, list(combStates), tipPoints, stableStates, threshold)
@@ -1598,6 +1710,7 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
   if (!is.numeric(respIn) & !is.null(respIn)) stop("'respIn' has to be numeric")
   #_
   resp <- mod$data[[1]]
+  # Get mixture parameters
   parsTab <- summary(mod, byChains = byChains, absInt = TRUE, digit = NULL, randomSample = randomSample)
   parsTab <- lapply(parsTab, function(x) {x[is.na(x)] <- 0; x})
   if (is.null(randomSample)) parsTab <- lapply(parsTab, function(x) x[, "mean", drop = FALSE])
@@ -1606,10 +1719,12 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
     logit = function(x) exp(x)/(1+exp(x)), probit = pnorm, cloglog = function(x) 1 - exp(-exp(x)))
   xx <- seq(min(resp), max(resp), length.out = samples)
   if (mod$errorModel == "negbinomial") {
+    # Integer samples along x-axis for negbinomial
     xx <- seq(min(resp), max(resp), by = trunc((max(resp)-min(resp)+1) / samples) + 1)
     samples <- length(xx)
   }
   if (addEcos) {
+    # Adding observations to be visualized at the end of xx vector
     pred <- mod$constants[[svar]]
     xx <- c(xx, resp[abs(pred - value) < ecosTol])
   }
@@ -1617,8 +1732,10 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
   if (is.null(dim(value))) value <- matrix(value, length(value), dimnames = list(NULL, svar))
   value <- as.matrix(value)
   calcParsVal <- function(pars, value, mod){
+    # A function to extract parameters for given state
     getPars <- function(curState, pars, value){
       pars <- as.matrix(pars)
+      # Extract parameters of a given type
       auxExtract <- function(toGet, curState, pars, value){
         stateIndex <- if (Nstates == 1) NULL else paste0("[", curState, "]")
         pos <- match(paste0(c("intercept", colnames(value)), "_", toGet, stateIndex), rownames(pars))
@@ -1631,11 +1748,13 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
       cbind(est = do.call(invlink, list(est)), sd = 1 / sqrt(exp(prec)), prob = prob)
     }
     parsVal <- vapply(1:Nstates, getPars, FUN.VALUE = array(0, dim = c(nrow(value), 3)), pars, value)
+    # Standardize probabilities to sum to 1
     parsVal[, "prob", 1] <- rep(0, nrow(value))
     parsVal[, "prob", ] <- exp(parsVal[, "prob", ]) / rowSums(exp(parsVal[, "prob", , drop = FALSE]))
     rownames(parsVal) <- paste0("value", 1:nrow(value))
     parsVal
   }
+  # A function to construct density function for the mixture
   makeDensFun <- function(){
     dfun <- switch(as.character(mod$errorModel),
                    gaussian = "dnorm",
@@ -1649,6 +1768,7 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
     as.function(c(argsList, str2lang(strFun)))
   }
   densFun <- makeDensFun()
+  # A function to calculate densities or get parameters
   calcDens <- function(parsVal, getParsD = FALSE){
     aux <- parsVal[, "est", ]
     auxDim <- c(nrow(value), 3, Nstates)
@@ -1662,11 +1782,12 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
   parsValList <- lapply(parsTab, apply, 2, calcParsVal, value, mod, simplify = FALSE)
   densOut <- lapply(parsValList, lapply, calcDens, getParsD = getParsD)
   if (getParsD) densOut <- list(densOut, densFun = densFun)
-  plotSlice <- function(sliceDens){
-    lines(xx[1:samples], sliceDens[1:samples])
-    if (addEcos) points(tail(xx, -samples), tail(sliceDens, -samples), pch = 16)
-  }
   if (doPlot) {
+    # An auxiliary function to plot a line and its addEcos points
+    plotSlice <- function(sliceDens){
+      lines(xx[1:samples], sliceDens[1:samples])
+      if (addEcos) points(tail(xx, -samples), tail(sliceDens, -samples), pch = 16)
+    }
     if (nrow(value) > 1) warning("Only curve(s) for the first value is/are plotted.")
     yrange <- c(0, 1.05 * max(unlist(densOut)))
     plot(range(resp), yrange, type = "n", ylab = "Probability density",
@@ -1676,6 +1797,7 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
     box(bty = "l")
     lapply(densOut, lapply, plotSlice)
     if (plotEst) {
+      # Plotting mean and variance for each component
       plotEstFn <- function(parsVal){
         rgbVec <- col2rgb(setCol)
         cols <- rgb(rgbVec[1, ], rgbVec[2, ], rgbVec[3, ],
@@ -1755,30 +1877,35 @@ landscapeMixglm <- function(mod, form = NULL, threshold = 0, addPoints = TRUE,
                                        dimnames = list(NULL, names(otherPreds))))
     colnames(valueDF)[1] <- svar
   }  else valueDF <- grad
+  # Get slices and identify stable states/ tipping points
   slices <- sliceMixglm(mod, form, value = valueDF, byChains = FALSE,
     doPlot = FALSE, randomSample = randomSample)
   tipStableAll <- getMinMax(slices, threshold)
   tipStable <- tipStableAll$tipStable
   mats <- tipStableAll$matsSt
+  # An auxiliary function to get if x is 1 working for potential NULL
   is.one <- function(x) {
     out <- !is.null(x)
     if (out) out <- x == 1
     out
   }
+  # Calculate matrix to be plotted
   matPlot <- if (!(is.null(randomSample) | is.one(randomSample)))
     apply(array(do.call(c, mats), dim = c(dim(mats[[1]]), length(mats))),
     2, apply, 1, sd) else mats[[1]]
   arg <- list(...)
   if (is.null(arg$xlab)) arg$xlab <- svar
   if (is.null(arg$ylab)) arg$ylab <- names(mod$data)
+  # Plotting of matPlot
   do.call(image, c(list(grad), list(slices$resp), list(t(matPlot)), arg))
   box()
-  plotMinMax <- function(tipStable, xCoors, state, col, cex = 0.5){
-    selStates <- tipStable[tipStable$state == state & tipStable$catSt == 1, ]
-    points(rep(xCoors, nrow(selStates)), selStates$resp, pch = 16, cex = cex, col = col)
-  }
   if (addPoints) points(pred, resp, cex = 0.4, pch = 16)
+  # Adding stable states and tipping points
   if (addMinMax) {
+    plotMinMax <- function(tipStable, xCoors, state, col, cex = 0.5){
+      selStates <- tipStable[tipStable$state == state & tipStable$catSt == 1, ]
+      points(rep(xCoors, nrow(selStates)), selStates$resp, pch = 16, cex = cex, col = col)
+    }
     cex <- if (is.null(randomSample)) 0.5 else 0.1
     lapply(tipStable, function(x) Map(plotMinMax, x, grad, 0, col = eqiCol[2], cex = cex))
     lapply(tipStable, function(x) Map(plotMinMax, x, grad, 1, col = eqiCol[1], cex = cex))
@@ -1831,13 +1958,20 @@ rMixglm <- function(mod, n = 1, newdata = NULL){
   if (!all(colnames(newdata) %in% names(mod$constants)))
     stop("some colnames of 'newdata' have not been found in 'mod'")
   #_
+  # Get slices for newdata
   form <- formula(paste(names(mod$data), "~", colnames(newdata)[1]))
   slices <- sliceMixglm(mod, form, value = newdata, byChains = FALSE,
     doPlot = FALSE, getParsD = TRUE)
   Nstates <- mod$constants$numStates
+  # A function to generate values
   sampleDist <- function(pars){
-    comp <- sample(1:Nstates, prob = pars[3, ], size = n, replace = TRUE)
-    rnorm(n, pars[1, comp], pars[2, comp])
+    getRfun <- switch (as.character(mod$errorModel),
+      gaussian = rnormStateValueMembership,
+      gamma = rgammaStateValueMembership,
+      beta = rbetaStateValueMembership,
+      negbinomial = rnegbinStateValueMembership
+    )
+    vapply(rep(1, n), getRfun, pars[1, ], 1/(pars[2, ] * pars[2, ]), pars[3, ], FUN.VALUE = 1.1)
   }
   out <- t(as.data.frame(apply(slices[[1]][[1]][[1]], 1, sampleDist, simplify = FALSE)))
   rownames(out) <- paste0("obs", 1:nrow(out))

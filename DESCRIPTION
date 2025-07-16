@@ -20,6 +20,7 @@ Depends:
     nimble,
     R (>= 3.5)
 Collate:
+    data.R
     nimbleExtensions.R
     mixglm.R
     zzz.R

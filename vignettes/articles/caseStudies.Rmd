@@ -246,6 +246,24 @@ modPT <- mixglm(
   mcmcChains = 2
 )
 ```
+We can still use 2D visualization functions `plot()` and `landscapeMixglm()`.
+However, they show us only one gradient with the other predictor fixed to zero
+or a specified value in the case of `landscapeMixglm()`. Therefore, fit of 
+lines to observations can be misleading. Keep in mind that we see just one 
+cross-section of the stability landscape.   
+
+```{r plot2D}
+# Fitted mixture components along temperature gradient (for precipSt == 0)
+plot(modPT, form = treeCover ~ tempSt)
+
+# Stability landscape along temperature gradient (for precipSt == 0)
+landscapeMixglm(modPT, treeCover ~ tempSt, threshold = 0.1, addPoints = FALSE)
+
+# Stability lanscape along precipitation gradient (for temperature 20°C)
+landscapeMixglm(modPT, treeCover ~ precipSt, threshold = 0.1, 
+  otherPreds = setNames(st(20, datTC$temp), "tempSt"), addPoints = FALSE)
+```
+
 
 
 # References

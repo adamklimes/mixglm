@@ -209,6 +209,20 @@ plot(datTC$x, datTC$y, col = c("lightgreen", "darkgreen")[domainForest + 1],
   pch = 15, xlab = "Longitude (°)", ylab = "Latitude (°)", asp = 1, cex = 0.5)
 ```
 
+Function `predict()` can be also used for prediction by specifying argument
+`newdata`. For example, we can predict domains for precipitation at the 
+end of 21. century:
+
+```{r predict}
+predF <- predict(mod, threshold = 0.1, 
+  newdata = data.frame(precipSt = st(datTC$precip2100, datTC$precip)))
+domainForestF <- mapply(isDomainForest, predF$tipStable, datTC$treeCoverProp)
+
+# Map of predicted domains
+plot(datTC$x, datTC$y, col = c("lightgreen", "darkgreen")[domainForestF + 1], 
+  pch = 15, xlab = "Longitude (°)", ylab = "Latitude (°)", asp = 1, cex = 0.5)
+```
+
 We can similarly plot various resilience measures stored in `pred$obsDat`:
 
 ```{r resilience}
@@ -246,6 +260,7 @@ modPT <- mixglm(
   mcmcChains = 2
 )
 ```
+
 We can still use 2D visualization functions `plot()` and `landscapeMixglm()`.
 However, they show us only one gradient with the other predictor fixed to zero
 or a specified value in the case of `landscapeMixglm()`. Therefore, fit of 
@@ -264,7 +279,74 @@ landscapeMixglm(modPT, treeCover ~ precipSt, threshold = 0.1,
   otherPreds = setNames(st(20, datTC$temp), "tempSt"), addPoints = FALSE)
 ```
 
+While visualization of the stability landscape is limited, stability curves and 
+resilience measures can be calculated for each observation (accounting for all 
+predictors). For that, we use function `predict()`:
 
+```{r curves}
+predPT <- predict(modPT, threshold = 0.1)
+
+# Stability curve for observation 1
+plot(predPT$sampledResp, predPT$probCurves$X1, type = "l")
+
+# Stable states for each observation
+stableStates <- lapply(predPT$tipStable, function(x) x$resp[x$state > 0.5 & x$catSt > 0.5])
+# Number of stable state
+nStableStates <- vapply(stableStates, length, FUN.VALUE = 1L)
+max(nStableStates) # Maximum number of stable states is 2
+
+# Observations with alternative stable states (red)
+plot(datTC$precip, datTC$temp, xlab = "Precipitation (mm/yr)", ylab = "Temperature (°C)",
+  col = c("grey", "red")[nStableStates])
+
+plot(datTC$precip, datTC$treeCover, col = c("grey", "red")[nStableStates])
+plot(datTC$temp, datTC$treeCover, col = c("grey", "red")[nStableStates])
+
+# Map of resilience (potential depth)
+potentialDepthPTCol <- assignColor(predPT$obsDat$potentialDepth, heat.colors(130)[1:100])
+plot(datTC$x, datTC$y, col = "grey", pch = 15, xlab = "Longitude (°)", 
+  ylab = "Latitude (°)", asp = 1, cex = 0.5)
+points(datTC$x, datTC$y, col = potentialDepthPTCol, pch = 15, cex = 0.5)
+```
+
+### Absence of alternative stable states
+In a large part of South America, we have not found any alternative stable states
+along precipitation and temperature gradients. This will be the case for many 
+systems with some having only one stable state of its ecosystem state variable 
+along whole predictor gradient. Although some measures of resilience are not
+defined for these areas or cases such as distance to the closest tipping point, 
+*mixglm* provides other measures of ecological resilience which can be
+computed and thus used to characterize the state of the ecosystem.  
+
+``` {r oneState}
+# Map of resilience (distance to stable state)
+distStatePTCol <- assignColor(predPT$obsDat$distToState, 
+  rev(heat.colors(130)[1:100])) # High distance to state is red
+plot(datTC$x, datTC$y, col = "grey", pch = 15, xlab = "Longitude (°)", 
+  ylab = "Latitude (°)", asp = 1, cex = 0.5)
+points(datTC$x, datTC$y, col = distStatePTCol, pch = 15, cex = 0.5)
+
+# Stable state tree cover 
+stateResp <- lapply(predPT$tipStable, function(x) x$resp[x$state > 0.5 & x$catSt > 0.5])
+tipResp <- lapply(predPT$tipStable, function(x) 
+  {out <- x$resp[x$state < 0.5 & x$catSt > 0.5]; out[!is.na(out)]})
+# Function to select the state in which domain is the observation (from 2 states)
+getState <- function(state, tip, resp){
+  stateDist <- state - resp
+  signState <- sign(stateDist)
+  signTip <- sign(tip - resp)
+  if (all(signState == 1) | all(signState == -1) | all(signState == 0)) 
+    state[abs(stateDist) == min(abs(stateDist))] else state[signState != signTip]
+}
+stateRespObs <- mapply(getState, stateResp, tipResp, datTC$treeCoverProp)
+
+# Map of stable state tree cover
+statePTCol <- assignColor(stateRespObs, 
+  rev(terrain.colors(130)[1:100])) # High tree cover is green
+plot(datTC$x, datTC$y, col = statePTCol, pch = 15, xlab = "Longitude (°)", 
+  ylab = "Latitude (°)", asp = 1, cex = 0.5)
+
+```
 
 # References
 [↑](#bFlores) <a name="refFlores"></a>Flores, B.M., Montoya, E., Sakschewski, B. et al. 2024. Critical transitions in the Amazon forest system. *Nature* 626, 555–564. [doi.org/10.1038/s41586-023-06970-0](https://doi.org/10.1038/s41586-023-06970-0)\

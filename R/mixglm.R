@@ -848,7 +848,7 @@ mixglmSimulation <- function(
   }
   # Check coef values
   checkInit(stateValModels, statePrecModels, inputData, modelSpecification$initialValues,
-            stateValError, modelSpecification$linkFunction, numStates, checkForSimulation = TRUE)
+            modelSpecification$errorModel, modelSpecification$linkFunction, numStates, checkForSimulation = TRUE)
   # Initialise the NIMBLE model
   modelObject <- nimbleModel(modelSpecification$modelCode, constants = modelSpecification$constants, data = modelSpecification$data, inits = modelSpecification$initialValues)
   # Specify a function to simulate data (of a particular data node)
@@ -1283,7 +1283,7 @@ summary.mixglm <- function(object, byChains = FALSE, digit = 4L,
     out <- lapply(varsSamples, function(x) t(apply(x, 2, auxSummary)))
   } else {
     out <- lapply(varsSamples,
-      function(x) t(x[sample(1:nrow(varsSamples[[1]]), randomSample), , drop = FALSE]))
+      function(x) t(x[sample(seq_len(nrow(varsSamples[[1]])), randomSample), , drop = FALSE]))
   }
   if (!is.null(digit)) out <- lapply(out, round, digit)
   out
@@ -1434,7 +1434,7 @@ coef.mixglm <- function(object, digit = NULL, ...){
     rownames(out) <- out$ID
     colnames(out) <- c("ID", types)
     intID <- which(rownames(out) == "intercept")
-    out[c(intID, (1:nrow(out))[-intID]), -1, drop = FALSE]
+    out[c(intID, (seq_len(nrow(out)))[-intID]), -1, drop = FALSE]
   }
   Nstates <- object$constants$numStates
   res <- lapply(1:Nstates, getPars, s)
@@ -1751,7 +1751,7 @@ sliceMixglm <- function(mod, form = NULL, value = 0, byChains = TRUE,
     # Standardize probabilities to sum to 1
     parsVal[, "prob", 1] <- rep(0, nrow(value))
     parsVal[, "prob", ] <- exp(parsVal[, "prob", ]) / rowSums(exp(parsVal[, "prob", , drop = FALSE]))
-    rownames(parsVal) <- paste0("value", 1:nrow(value))
+    rownames(parsVal) <- paste0("value", seq_len(nrow(value)))
     parsVal
   }
   # A function to construct density function for the mixture

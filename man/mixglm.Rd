@@ -20,7 +20,8 @@ mixglm(
     "dnorm(0.0, 0.001)"), statePrec = list(int = "dnorm(0.0, 0.001)", pred =
     "dnorm(0.0, 0.001)")),
   setInit = NULL,
-  setSeed = FALSE
+  setSeed = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -80,6 +81,8 @@ mixture components.}
 
 \item{setSeed}{logical or numeric argument passed to \link[nimble]{runMCMC}. If \code{"TRUE"} or
 numeric, R's random number seed is set at the onset of each MCMC chain.}
+
+\item{verbose}{A logical value specifying if NIMBLE messages should be printed.}
 }
 \value{
 A list containing the following components:

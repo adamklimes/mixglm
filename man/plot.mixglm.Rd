@@ -16,6 +16,8 @@
   SDmult = 1,
   xlab = NULL,
   ylab = NULL,
+  doPlot = TRUE,
+  xSamples = 100,
   ...
 )
 }
@@ -42,7 +44,23 @@ lines for small standard deviation visible)}
 
 \item{ylab}{a label for the y axis, defaults to response name.}
 
+\item{doPlot}{logical value indicating if plotting should be done}
+
+\item{xSamples}{integer value specifying the number of values regularly
+distributed along x-axis at which estimates are calculated}
+
 \item{...}{additional arguments passed to \link[graphics]{plot}}
+}
+\value{
+Returns invisibly a list of lists for each chain. These lists
+contain a dataframe for each mixture component:
+\item{\code{x}}{ Values along x-axis for which estimates are calculated}
+\item{\code{prob}}{ Probability of the component in the mixture along x-axis}
+\item{\code{yEst}}{ Mean of the component in the mixture along x-axis}
+\item{\code{yLow}}{ Mean minus \code{SDmult} times standard deviation of the
+component in the mixture along x-axis}
+\item{\code{yUpp}}{  Mean plus \code{SDmult} times standard deviation of the
+component in the mixture along x-axis}
 }
 \description{
 This function plots results of a mixture model on the

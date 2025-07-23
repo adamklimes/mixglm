@@ -4,10 +4,13 @@
 \alias{setBUGSVariableName}
 \title{Change Variable Names to BUGS-Friendly Versions}
 \usage{
-setBUGSVariableName(inName)
+setBUGSVariableName(inName, warn = FALSE)
 }
 \arguments{
 \item{inName}{A character vector of variable names}
+
+\item{warn}{A logical value specifying if warnings should be printed for any
+change in a variable name}
 }
 \value{
 A character vector of BUGS-compliant variable names

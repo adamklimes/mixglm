@@ -13,7 +13,8 @@ checkInit(
   linkFunction,
   Nstates,
   genNew = FALSE,
-  genFn = function(x) rnorm(1, 0, 2)
+  genFn = function(x) rnorm(1, 0, 2),
+  checkForSimulation = FALSE
 )
 }
 \arguments{
@@ -52,6 +53,9 @@ the component rank and it should return one value. Absolute value of provided
 function is used for initial value of intercept of mean for components apart
 from the first one. Note that for intercept of precision of beta
 distribution, \code{genFn(x) + 6} is used.}
+
+\item{checkForSimulation}{A logical value specifying if only a check of initial values
+should be done. Mainly for internal use.}
 }
 \value{
 A list of initial values

@@ -48,7 +48,7 @@ list.}
 \item{stateValError}{A description of the error distribution and link function to be used
 in the model describing the ecosystem state value.  This can be from the \link[stats]{family}
 specification or \code{character} scalar with the following possible values: \code{"gaussian"},
-\code{"gamma"}, \code{"beta"}, \code{"negbinomial"}, or \code{"betabinomial"}.}
+\code{"gamma"}, \code{"beta"}, or \code{"negbinomial"}.}
 
 \item{coefficientValues}{A list containing the values of the coefficients to use in the
 simulation.}
@@ -70,6 +70,16 @@ mixture component existing}
 This function takes a set of model specifications for the three sub-models
 of a mixture model and generates a simulation from this
 model specification
+}
+\details{
+Used parametrization of gamma, beta, and negbinomial distribution using mean and
+precision is internally reparametrized into typical shape and rate parametrization for gamma,
+two shape parameters for beta, and size and probability parameters for negbinomial. For all
+these distributions, their parameters are constrained (e.g. shape parameters of the beta
+distribution have to be positive). Consequently, not all combinations of mean and precision
+can be used.
+Generally to get legitimate coefficient values: Standardize your predictors and start with low
+coefficient values (for beta distribution, increase precision).
 }
 \examples{
 {

@@ -177,7 +177,7 @@ a list of formulas with each formula used for one component. This can be used
 e.g. to explore model behavior or test specific hypotheses. 
 
 ```{r flists, eval = FALSE}
-statePrecModels = list(~ precipSt, ~ 1) # precision of 2. component is constant
+statePrecModels <- list(~ precipSt, ~ 1) # precision of 2. component is constant
 ```
 
 Priors can be specified using the `setPriors` argument. It takes a list of up 
@@ -188,7 +188,7 @@ of all other components. Here we show several examples of setting priors:
 
 ```{r priors, eval = FALSE}
 # Full specification of priors
-setPriors = list(               
+setPriors <- list(               
   stateVal = list(             # dnorm(mean, tau) parametrization is used
     int1 = "dnorm(0.0, 0.01)", #   by default, where sd = 1 / sqrt(tau)  
     int2 = "dgamma(1.0, 1.0)", # dgamma(shape, rate) parametrization is used
@@ -202,13 +202,13 @@ setPriors = list(
 
 # Specification of priors for regression slope (effect of predictors on mean
 #   value of each component). All unspecified priors are set to defaults. 
-setPriors = list(               
+setPriors <- list(               
   stateVal = list(
     pred = "dnorm(0.0, 0.1)"))
 
 # Specification of all intercept priors. All unspecified priors are set to 
 #   defaults. 
-setPriors = list(               
+setPriors <- list(               
   stateVal = list(             
     int1 = "dnorm(5.0, 1.0)",  
     int2 = "dbeta(1.0, 20.0)",

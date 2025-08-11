@@ -31,21 +31,21 @@ To install the development version of the mixglm package from [GitHub](https://g
 remotes::install_github("adamklimes/mixglm")
 ```
 # Introduction
-*mixglm* uses Bayesian framework via [NIMBLE](https://r-nimble.org/) to fit 
-mixtures of regressions. It provides flexibility in specification of these 
+*mixglm* uses a Bayesian framework via [NIMBLE](https://r-nimble.org/) to fit 
+mixtures of regressions. It provides flexibility in the specification of these 
 regressions allowing their mean, precision, and probability to be dependent 
 on up to multiple predictors. It supports [normal](https://en.wikipedia.org/wiki/Normal_distribution), [beta](https://en.wikipedia.org/wiki/Beta_distribution), [gamma](https://en.wikipedia.org/wiki/Gamma_distribution), or [negative binomial](https://en.wikipedia.org/wiki/Negative_binomial_distribution) 
 distributed response variables.\
 \
 Mixtures of regressions can be used for various purposes. Mixture models can
-be used as a semiparametric way for modelling variables with an unknown 
+be used as a semi-parametric way for modelling variables with an unknown 
 distribution (<a name="bMcLachlan"></a>[McLachlan & Peel, 2000](#refMcLachlan)). 
 They can be used in cluster analyses, or in resilience modelling (ecology) for 
 parametrization of stability landscapes.\
 \
 The *mixglm* package provides tools for exploration of results such as 
 computations and visualizations of mixtures. While these tools are usable for
-all above mentioned purposes, they are described in terminology of resilience 
+all above mentioned purposes, they are described in the terminology of resilience 
 modelling in this vignette.
 
 ## *mixglm* for resilience modelling
@@ -65,7 +65,7 @@ a so-called *stability landscape* (see <a name="bKlimes"></a>[Klimeš et al., 20
 regressions can be used to parametrize this stability landscape. From it, 
 stability curves for predictor values of interest can be explored and the 
 position of instances of a system (e.g. observed ecological systems) along 
-these curves can be evaluated. *mixglm* offers tools for that ranging from 
+these curves can be evaluated. *mixglm* offers tools for such purposes, ranging from 
 stability landscape calculation and visualization, depiction of specified 
 stability curves, to calculation of several metrics of ecological resilience.\
 \
@@ -104,13 +104,13 @@ dat <- data.frame(vegHeight, precip, vegHeightSt, precipSt)
 plot(vegHeight ~ precip, data = dat, ylab = "Vegetation height (cm)")
 ```
 
-We generated an auxiliary latent variable `state` which describes to which of 
+We generated an auxiliary latent variable `state` which describes which of 
 the two ecosystem states any particular observation belongs. We assumed 
 vegetation height to be normally distributed with parameters depending on this 
 `state`. 
 
 ## Fitting the mixture model
-To fit a mixture model, we need to specify three sub-models. The first sub-model
+To fit a mixture model, we must specify three sub-models. The first sub-model
 (`stateValModels`) specifies the mean values of mixture components, the second 
 (`statePrecModels`) their precision, and the third (`stateProbModels`) their 
 probability within the mixture. Each of them is specified by a [formula](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/formula) with
@@ -154,8 +154,8 @@ similarly well and samplers can easily get stuck in local optima. To
 evaluate the fit, e.g. the [coda](https://CRAN.R-project.org/package=coda) 
 package and its tools can be used - here we illustrate by plotting sampled 
 values for individual parameters. On the left, we see sampled values of the 
-specified parameter for each chain providing visual clue about convergence and 
-on the right we see posterior probability density of the parameter:
+specified parameter for each chain providing visual insights about convergence and 
+on the right we see the posterior probability density of the parameter:
 
 ```{r coda}
 plot(mod$mcmcSamples$samples[, "intercept_statePrec[1]"])
@@ -163,7 +163,7 @@ plot(mod$mcmcSamples$samples[, "intercept_statePrec[1]"])
 
 *mixglm* offers a `plot()` function which shows the mean, standard deviation, 
 and probability of each component along one predictor. Each chain is visualized
-separately by default (`byChains = TRUE`) providing also visual clues about 
+separately by default (`byChains = TRUE`), and this can also provide visual clues about 
 convergence. 
 
 ```{r plot}
@@ -228,16 +228,16 @@ parameter space or to ensure valid starting values. Initial values of a model
 can be accessed by `mod$initialValues`.
 
 ## Results
-Apart from the `plot()` function which visualizes individual components along a
+In addition to the `plot()` function which visualizes individual components along a
 predictor, *mixglm* offers several other functions for accessing and plotting
 results.
 
 ### Accessing results
 Calling the model object (`mod` in our case) prints WAIC and posterior mean 
 values for all parameters. These values can be accessed using the `coef()` 
-function. For a more detailed overview, `summary()` function provides also the 
+function. For a more detailed overview, `summary()` function also provides the 
 standard deviation, 2.5, 25, 75, and 97.5 percentiles of the posterior 
-distribution for each parameter. Using the argument `byChains = TRUE`, we get 
+distribution for each parameter. Using the argument `byChains = TRUE`, we obtain 
 this summary separately for each chain.\
 \
 The `summary()` function has two more useful arguments. Intercepts for the mean 
@@ -255,10 +255,10 @@ summary(mod, absInt = TRUE)
 ```
 
 ### Plotting results
-*mixglm* has two functions which visualize resulting mixture distributions.
+*mixglm* has two functions to visualize the resulting mixture distributions.
 The function `landscapeMixglm()` shows a heatplot presentation of the fitted 
 mixture with reddish colours denoting high probability density (in resilience 
-modelling called *stability landscape*). It plots the probability density 
+modelling called the *stability landscape*). It plots the probability density 
 scaled to range from 0 to 1 and highlights local maxima (suggesting stable 
 states in resilience modelling; blue by default) and local minima (tipping 
 points; red by default). 
@@ -278,9 +278,9 @@ predictors, observations (black points) are projected to the visualized plane
 and thus cannot be used to assess the fit of the model to the data.\
 \
 Often the resulting mixture has small local minima or maxima which do not 
-representmajor peaks on the probability density function. If minima and maxima 
+represent major peaks on the probability density function. If minima and maxima 
 of the probability density are of interest (as in resilience modelling), it is 
-usefulto set a threshold and consider only major bumps in the probability 
+useful to set a threshold and consider only major bumps in the probability 
 density function as actual minima/maxima. The argument `threshold` can be used 
 to denote only such minima/maxima which differ in the scaled probability 
 density by at least specified value.
@@ -290,10 +290,10 @@ landscapeMixglm(mod, threshold = 0.3)
 ```
 
 The argument `randomSample` of the `landscapeMixglm()` function can be used to 
-assess uncertainty of the results. It specifies how many random samples from 
+assess uncertainty in the results. It specifies how many random samples from 
 the posterior distribution should be taken. For each of these samples, the 
 probability density of the mixture is evaluated and the standard deviation of 
-these evaluations is plotted alongside local minima and maxima for each of 
+these evaluations is plotted alongside the local minima and maxima for each of 
 them. These computations can take some time, thus we illustrate it here using 
 just 3 samples:
 
@@ -327,7 +327,7 @@ plot random samples from the posterior distributions of parameters.
 
 ## Predictions
 To predict the scaled probability density of the mixture for specific predictor 
-values or to get local minima/maxima for those values, *mixglm* has the 
+values or to obtain local minima/maxima for those values, *mixglm* has the 
 function`predict()`. By providing predictor values as a named data.frame to 
 the `newdata` argument, we get a list with a `probCurves` item which stores 
 the scaled probability density for each predictor value along the response 
@@ -353,7 +353,7 @@ points(tipStable1$resp, tipStable1$probDens, col = cols[tipStable1$state + 1],
 ```
 
 ## Resilience measures
-The function `predict()` also provides several resilience measures. Potential 
+The function `predict()` also allows calculation of several resilience measures. Potential 
 energy (`potentEn`) is a scaled probability density for each observation. 
 `distToState` is distance to the closest stable state (local maxima of 
 probability density) taking `threshold` into account. Distance is in units of 

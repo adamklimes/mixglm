@@ -6,7 +6,7 @@ output:
     toc: true
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{to_delete}
+  %\VignetteIndexEntry{Mixture models with *mixglm*}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -172,7 +172,7 @@ plot(mod)
 
 ## Model specifications
 *mixglm* allows different predictors for individual components. For each 
-sub-model (`stateValModels/statePrecModels/stateProbModels`), we can provide
+sub-model (`stateValModels` / `statePrecModels` / `stateProbModels`), we can provide
 a list of formulas with each formula used for one component. This can be used
 e.g. to explore model behavior or test specific hypotheses. 
 

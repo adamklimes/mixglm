@@ -21,7 +21,8 @@ mixglm(
     "dnorm(0.0, 0.001)")),
   setInit = NULL,
   setSeed = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  mixglmSpecif = NULL
 )
 }
 \arguments{
@@ -83,6 +84,9 @@ mixture components.}
 numeric, R's random number seed is set at the onset of each MCMC chain.}
 
 \item{verbose}{A logical value specifying if NIMBLE messages should be printed.}
+
+\item{mixglmSpecif}{Output of \code{"mixglmSpecification()"}. Mainly for
+development.}
 }
 \value{
 A list containing the following components:

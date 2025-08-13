@@ -5,7 +5,7 @@
 \alias{treeCover}
 \title{Tree cover data for South America}
 \format{
-## `treeCover`
+`treeCover`
 A data frame with 5,000 rows and 6 columns:
 \describe{
   \item{x}{Longitude in degrees}

@@ -74,11 +74,31 @@ of the mixture model}
 nodes in the NIMBLE model specification}
 }
 \description{
-This function takes a set of model specifications for the three sub-models
+Mainly for internal use. This function takes a set of model
+specifications for the three sub-models
 of a mixture model and generates a set of structures
 for initialisation of a NIMBLE model
+}
+\examples{
+\dontrun{
+set.seed(10)
+n <- 200
+x <- rnorm(n)
+group <- rbinom(n, 1, 0.5)
+y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+plot(y ~ x)
+dat <- data.frame(x, y)
+
+modSpecification <- mixglmSpecification(
+  stateValModels = y ~ x,
+  stateProbModels = ~ x,
+  statePrecModels = ~ x,
+  inputData = dat,
+  numStates = 2)
+}
+mod <- mixglm(mixglmSpecif = modSpecification,
+  mcmcChains = 2)
 }
 \author{
 Joseph D. Chipperfield \email{joechip90@googlemail.com}, Adam Klimes
 }
-\keyword{internal}

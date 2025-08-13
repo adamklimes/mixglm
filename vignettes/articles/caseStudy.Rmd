@@ -5,8 +5,11 @@ output:
   rmarkdown::html_vignette:
     toc: true
     number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Case Study}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   fig.width = 7, fig.height = 5,
@@ -29,7 +32,7 @@ a precipitation gradient. The used tree cover data is from 2001. Replication of 
 
 ## Tree cover dataset
 *mixglm* package provides the dataset `treeCover` which includes tree cover, 
-precipitation, temperature, and predicted precipitation for the end of 21^s^t  century 
+precipitation, temperature, and predicted precipitation for the end of 21st century 
 and coordinates for 5,000 data-points across South America. 
 
 ```{r dataset}
@@ -86,12 +89,7 @@ component. In this example, we use 7 components. We also limit the number of
 chains to just 2 (for illustration purposes) to make the fit quicker (the following
 model fit can take up to a few hours). 
 
-```{r aux, include = FALSE}
-# To facilitate the build of this article, models are not fitted but just loaded.
-load(file = "../../../../data/analyses/modP7.RData")
-```
-
-```{r model, eval = FALSE}
+```{r model}
 numStates <- 7
 set.seed(21)
 modP <- mixglm(
@@ -213,7 +211,7 @@ plot(datTC$x, datTC$y, col = c("lightgreen", "darkgreen")[domainForest + 1],
 
 The function `predict()` can be also used for prediction by specifying the argument
 `newdata`. For example, we can predict domains for precipitation at the 
-end of 21. century:
+end of 21st century:
 
 ```{r predict}
 # Future precipitation is used for domain prediction which is forest for all 
@@ -254,14 +252,7 @@ dimensionality of the model which then cannot be easily visualized in 2D. To
 illustrate *mixglm* model with multiple predictors, we add temperature as a 
 predictor to our case study of tree cover in South America. 
 
-```{r aux2, include = FALSE}
-rm(modP)
-rm(pred)
-load("../../../../data/analyses/modPT7.RData")
-names(modPT$data) <- "treeCoverProp"
-```
-
-```{r modelPT, eval = FALSE}
+```{r modelPT}
 set.seed(21)
 modPT <- mixglm(
   stateValModels = treeCoverProp ~ precipSt + tempSt,

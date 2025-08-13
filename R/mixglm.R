@@ -50,7 +50,8 @@ setBUGSVariableName <- function(inName, warn = FALSE) {
 ### 1.2. ==== Create NIMBLE Model Structures for a mixture model====
 #' @title Create NIMBLE Model Structures for a mixture model
 #'
-#' @description This function takes a set of model specifications for the three sub-models
+#' @description Mainly for internal use. This function takes a set of model
+#' specifications for the three sub-models
 #' of a mixture model and generates a set of structures
 #' for initialisation of a NIMBLE model
 #'
@@ -103,7 +104,25 @@ setBUGSVariableName <- function(inName, warn = FALSE) {
 #' nodes in the NIMBLE model specification}
 #'
 #' @author Joseph D. Chipperfield \email{joechip90@@googlemail.com}, Adam Klimes
-#' @keywords internal
+#' @examples \dontrun{
+#' set.seed(10)
+#' n <- 200
+#' x <- rnorm(n)
+#' group <- rbinom(n, 1, 0.5)
+#' y <- rnorm(n, 1 + 0.5 * x * c(-1, 1)[group + 1], 0.1)
+#' plot(y ~ x)
+#' dat <- data.frame(x, y)
+#'
+#' modSpecification <- mixglmSpecification(
+#'   stateValModels = y ~ x,
+#'   stateProbModels = ~ x,
+#'   statePrecModels = ~ x,
+#'   inputData = dat,
+#'   numStates = 2)
+#' }
+#' mod <- mixglm(mixglmSpecif = modSpecification,
+#'   mcmcChains = 2)
+#' @export
 #'
 mixglmSpecification <- function(
   stateValModels,
@@ -944,6 +963,8 @@ mixglmSimulation <- function(
 #' @param setSeed logical or numeric argument passed to \link[nimble]{runMCMC}. If \code{"TRUE"} or
 #' numeric, R's random number seed is set at the onset of each MCMC chain.
 #' @param verbose A logical value specifying if NIMBLE messages should be printed.
+#' @param mixglmSpecif Output of \code{"mixglmSpecification()"}. Mainly for
+#' development.
 #'
 #' @return A list containing the following components:
 #' \item{\code{mcmcSamples}}{ An \link[coda]{mcmc} object if \code{mcmcChains == 1} or \link[coda]{mcmc.list}
@@ -1005,7 +1026,8 @@ mixglm <- function(
       pred = "dnorm(0.0, 0.001)")),
   setInit = NULL,
   setSeed = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  mixglmSpecif = NULL
 ) {
   # input check
   if (!(is.numeric(numStates) | is.null(numStates))) stop("'numStates' has to be numeric or NULL")
@@ -1017,10 +1039,12 @@ mixglm <- function(
   #_
   saveNimbleOpt <- nimbleOptions()
   nimbleOptions(verbose = verbose)
-  # Create a NIMBLE model specification
-  modelSpecification <- mixglmSpecification(stateValModels, stateProbModels, statePrecModels, inputData, numStates, stateValError, setPriors)
-  # Change initial values if provided
-  modelSpecification$initialValues <- if (!is.null(setInit)) setInit else checkInit(stateValModels, statePrecModels, inputData, modelSpecification$initialValues, modelSpecification$errorModel, modelSpecification$linkFunction, modelSpecification$constants$numStates)
+  if (is.null(mixglmSpecif)) {
+    # Create a NIMBLE model specification
+    modelSpecification <- mixglmSpecification(stateValModels, stateProbModels, statePrecModels, inputData, numStates, stateValError, setPriors)
+    # Change initial values if provided
+    modelSpecification$initialValues <- if (!is.null(setInit)) setInit else checkInit(stateValModels, statePrecModels, inputData, modelSpecification$initialValues, modelSpecification$errorModel, modelSpecification$linkFunction, modelSpecification$constants$numStates)
+  } else modelSpecification <- mixglmSpecif
   modelObject <- nimbleModel(modelSpecification$modelCode, constants = modelSpecification$constants, data = modelSpecification$data, inits = modelSpecification$initialValues)
   # Build the MCMC object and compile it
   # Monitor only parameters

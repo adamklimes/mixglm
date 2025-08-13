@@ -3,7 +3,7 @@
 #' Tree cover, precipitation, temperature, and predicted precipitation data for
 #' a random set of 5000 locations in the South America.
 #'
-#' @format ## `treeCover`
+#' @format `treeCover`
 #' A data frame with 5,000 rows and 6 columns:
 #' \describe{
 #'   \item{x}{Longitude in degrees}

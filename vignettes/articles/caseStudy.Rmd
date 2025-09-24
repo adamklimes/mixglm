@@ -260,7 +260,7 @@ modPT <- mixglm(
   statePrecModels = ~ precipSt + tempSt,
   stateValError = "beta",
   inputData = datTC,
-  numStates = nStates,
+  numStates = numStates,
   mcmcChains = 2
 )
 ```
@@ -372,3 +372,4 @@ plot(datTC$x, datTC$y, col = statePTCol, pch = 15, xlab = "Longitude (°)",
 [↑](#bHirota) <a name="refHirota"></a>Hirota, M., M. Holmgren, E. H. van Nes, and M. Scheffer. 2011. Global resilience of tropical forest and savanna to critical transitions. *Science* 334: 232–235. [doi.org/10.1126/science.1210657](https://doi.org/10.1126/science.1210657)\
 \
 [↑](#bWatanabe) <a name="refWatanabe"></a>Watanabe, S. 2013. A widely applicable bayesian information criterion. *Journal of Machine Learning Research* 14: 867–897. [Link](https://jmlr.org/papers/v14/watanabe13a.html)
+

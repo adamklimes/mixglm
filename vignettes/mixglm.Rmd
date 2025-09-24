@@ -211,9 +211,9 @@ setPriors <- list(
 setPriors <- list(               
   stateVal = list(             
     int1 = "dnorm(5.0, 1.0)",  
-    int2 = "dbeta(1.0, 20.0)",
+    int2 = "dbeta(1.0, 20.0)"),
   stateProb = list(             
-    int2 = "dnorm(0.0, 0.1)", 
+    int2 = "dnorm(0.0, 0.1)"), 
   statePrec = list(            
     int = "dnorm(0.0, 0.1)"))
 ```
@@ -388,3 +388,4 @@ plot(dat$precip, dat$vegHeight, cex = predOrig$obsDat$potentialDepth * 1.5,
 [↑](#bMcLachlan) <a name="refMcLachlan"></a>McLachlan, G., Peel, D., 2000. Finite Mixture Models. *A Wiley-Interscience Publication*. John Wiley & Sons, Inc. ISBN 0-471-00626-2\
 \
 [↑](#bWatanabe) <a name="refWatanabe"></a>Watanabe, S. 2013. A widely applicable bayesian information criterion. *Journal of Machine Learning Research* 14: 867–897. [Link](https://jmlr.org/papers/v14/watanabe13a.html)
+

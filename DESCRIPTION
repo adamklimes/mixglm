@@ -25,3 +25,4 @@ Collate:
     mixglm.R
     zzz.R
 Config/Needs/website: rmarkdown
+URL: https://adamklimes.github.io/mixglm/

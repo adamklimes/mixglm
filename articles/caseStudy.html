@@ -91,7 +91,7 @@ which includes tree cover, precipitation, temperature, and predicted
 precipitation for the end of 21st century and coordinates for 5,000
 data-points across South America.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://adamklimes.github.io/mixglm/">mixglm</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mixglm</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: nimble</span></span>
 <span><span class="co">#&gt; nimble version 1.3.0 is loaded.</span></span>
 <span><span class="co">#&gt; For more information on NIMBLE and a User Manual,</span></span>
@@ -175,7 +175,323 @@ adding or excluding a component. In this example, we use 7 components.
 We also limit the number of chains to just 2 (for illustration purposes)
 to make the fit quicker (the following model fit can take up to a few
 hours).</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">numStates</span> <span class="op">&lt;-</span> <span class="fl">7</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span></span>
+<span><span class="va">modP</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mixglm.html">mixglm</a></span><span class="op">(</span></span>
+<span>  stateValModels <span class="op">=</span> <span class="va">treeCoverProp</span> <span class="op">~</span> <span class="va">precipSt</span>,</span>
+<span>  stateProbModels <span class="op">=</span> <span class="op">~</span> <span class="va">precipSt</span>,</span>
+<span>  statePrecModels <span class="op">=</span> <span class="op">~</span> <span class="va">precipSt</span>,</span>
+<span>  stateValError <span class="op">=</span> <span class="st">"beta"</span>,</span>
+<span>  inputData <span class="op">=</span> <span class="va">datTC</span>,</span>
+<span>  numStates <span class="op">=</span> <span class="va">numStates</span>,</span>
+<span>  mcmcChains <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="section level4">
+<h4 id="exploration-of-results">Exploration of results<a class="anchor" aria-label="anchor" href="#exploration-of-results"></a>
+</h4>
+<p>To explore the results, we begin by plotting individual components.
+It shows us how they fit the data and by using the default argument
+<code>byChains = TRUE</code>, we can see if chains did not converge
+well. For example, below we can see double lines for some mixture
+components showing that the convergence was not perfect in this case.
+For further discussion of convergence and how to assess it, see
+<code><a href="../articles/mixglm.html">vignette("mixglm")</a></code>.<br><br>
+Upper part of the figure shows the probability of each component along
+the precipitation gradient. The lower part depicts mean and standard
+deviation for each component along the same gradient.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">modP</span>, cex <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/plot-1.png" width="672"></p>
+<p>To obtain the overall stability landscape, we use the
+<code><a href="../reference/landscapeMixglm.html">landscapeMixglm()</a></code> function. By default, it shows stable
+states in blue and tipping points in red with scaled probability density
+as a background. Small “bumps” in the stability landscape are unlikely
+to denote real stable states. To avoid them, we set the
+<code>threshold</code> value to be higher than zero.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/landscapeMixglm.html">landscapeMixglm</a></span><span class="op">(</span><span class="va">modP</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/landscape-1.png" width="672"></p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Threshold = 0.1 and original precipitation values (x-axis)</span></span>
+<span><span class="fu"><a href="../reference/landscapeMixglm.html">landscapeMixglm</a></span><span class="op">(</span><span class="va">modP</span>, threshold <span class="op">=</span> <span class="fl">0.1</span>, axes <span class="op">=</span> <span class="cn">FALSE</span>, xlab <span class="op">=</span> <span class="st">"Precipitation (mm/yr)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Tree cover (%)"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></span><span class="op">(</span><span class="fl">2</span>, labels <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">*</span><span class="fl">20</span>, at <span class="op">=</span> <span class="fu">squeeze</span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">/</span><span class="fl">5</span><span class="op">)</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></span><span class="op">(</span><span class="fl">1</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">4</span><span class="op">*</span><span class="fl">1000</span><span class="op">)</span>, at <span class="op">=</span> <span class="fu">st</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">4</span><span class="op">*</span><span class="fl">1000</span><span class="op">)</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">precip</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/landscape-2.png" width="672"></p>
+<p>The same function can be used to visualize uncertainty by plotting
+the stability landscape based on random posterior samples. The
+background shows the standard deviation of these landscapes. Since the
+plotting can be slow with a higher number of samples, we use only 5
+here.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/landscapeMixglm.html">landscapeMixglm</a></span><span class="op">(</span><span class="va">modP</span>, threshold <span class="op">=</span> <span class="fl">0.1</span>, randomSample <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/uncertainty-1.png" width="672"></p>
+<p>We can explore the stability curves for any precipitation value using
+the <code><a href="../reference/sliceMixglm.html">sliceMixglm()</a></code> function. Since we used standardized
+precipitation as a predictor, we need to standardize the precipitation
+value for which we want the stability curve. In addition to the
+stability curve, the figure also shows estimates of each component at
+the specified precipitation value.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/sliceMixglm.html">sliceMixglm</a></span><span class="op">(</span><span class="va">modP</span>, value <span class="op">=</span> <span class="fu">st</span><span class="op">(</span><span class="fl">2000</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">precip</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/slice-1.png" width="672"></p>
 </div>
+<div class="section level4">
+<h4 id="maps-of-domains-and-resilience">Maps of domains and resilience<a class="anchor" aria-label="anchor" href="#maps-of-domains-and-resilience"></a>
+</h4>
+<p>Since the stability landscape can be complex, with theoretically many
+stable states, there is no general way to assign observations to domains
+of individual stable states. In this case study, however, it is
+relatively simple since we identified two clearly distinct stable
+states. First, we use the function <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> to obtain the
+stable states and tipping points for all modeled observations (along
+with resilience measures which we will use later). The function
+<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> calculates the stability curve for each
+observation (modeled or provided as a <code>newdata</code>) and returns
+its stable states (<code>state == 1</code>) and tipping points with
+scaled probability density, response variable value
+(<code>treeCoverProp</code>), and whether they satisfy the threshold
+(<code>catSt == 1</code>).</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">modP</span>, threshold <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="co"># Stable states and tipping points for observation 3</span></span>
+<span><span class="va">tipStable3</span> <span class="op">&lt;-</span> <span class="va">pred</span><span class="op">$</span><span class="va">tipStable</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">tipStable3</span></span>
+<span><span class="co">#&gt;    probDens      resp state catSt</span></span>
+<span><span class="co">#&gt; 3 0.4098253 0.2162848     1     1</span></span>
+<span><span class="co">#&gt; 1 0.1521568 0.4597204     0     1</span></span>
+<span><span class="co">#&gt; 4 0.2650052 0.6699158     1     0</span></span>
+<span><span class="co">#&gt; 2 0.2642923 0.6933795     0     0</span></span>
+<span><span class="co">#&gt; 5 1.0000000 0.7813682     1     1</span></span>
+<span></span>
+<span><span class="co"># Stability curve for observation 3 with stable states (blue) and </span></span>
+<span><span class="co">#   tipping points (red) (full circles when they satisfy the threshold)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred</span><span class="op">$</span><span class="va">probCurves</span><span class="op">$</span><span class="va">X3</span> <span class="op">~</span> <span class="va">pred</span><span class="op">$</span><span class="va">sampledResp</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"treeCoverProp"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Probability density (scaled)"</span><span class="op">)</span></span>
+<span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">tipStable3</span><span class="op">$</span><span class="va">resp</span>, <span class="va">tipStable3</span><span class="op">$</span><span class="va">probDens</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="va">tipStable3</span><span class="op">$</span><span class="va">state</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span>,</span>
+<span>  pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">16</span><span class="op">)</span><span class="op">[</span><span class="va">tipStable3</span><span class="op">$</span><span class="va">catSt</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/domains-1.png" width="672"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># A function to determine the domain (for this case study!)</span></span>
+<span><span class="va">isDomainForest</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">tipStable</span>, <span class="va">resp</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="co"># Extract response of stable states/tipping points which satisfy the threshold</span></span>
+<span>  <span class="va">stateResp</span> <span class="op">&lt;-</span> <span class="va">tipStable</span><span class="op">$</span><span class="va">resp</span><span class="op">[</span><span class="va">tipStable</span><span class="op">$</span><span class="va">state</span> <span class="op">&gt;</span> <span class="fl">0.5</span> <span class="op">&amp;</span> <span class="va">tipStable</span><span class="op">$</span><span class="va">catSt</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span></span>
+<span>  <span class="va">tipResp</span> <span class="op">&lt;-</span> <span class="va">tipStable</span><span class="op">$</span><span class="va">resp</span><span class="op">[</span><span class="va">tipStable</span><span class="op">$</span><span class="va">state</span> <span class="op">&lt;</span> <span class="fl">0.5</span> <span class="op">&amp;</span> <span class="va">tipStable</span><span class="op">$</span><span class="va">catSt</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span></span>
+<span>  <span class="va">stateResp</span> <span class="op">&lt;-</span> <span class="va">stateResp</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">stateResp</span><span class="op">)</span><span class="op">]</span></span>
+<span>  <span class="va">tipResp</span> <span class="op">&lt;-</span> <span class="va">tipResp</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">tipResp</span><span class="op">)</span><span class="op">]</span></span>
+<span>  <span class="co"># Auxiliary function to provide minimum of x or Inf if x has length 0</span></span>
+<span>  <span class="va">minE</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="cn">Inf</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="co"># Response value of domain's stable state</span></span>
+<span>  <span class="va">domainStateResp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">stateResp</span><span class="op">[</span><span class="va">stateResp</span> <span class="op">&lt;=</span> <span class="va">resp</span> <span class="op">&amp;</span> </span>
+<span>    <span class="va">resp</span> <span class="op">-</span> <span class="va">stateResp</span> <span class="op">&lt;</span> <span class="fu">minE</span><span class="op">(</span><span class="op">(</span><span class="va">resp</span> <span class="op">-</span> <span class="va">tipResp</span><span class="op">)</span><span class="op">[</span><span class="va">resp</span> <span class="op">-</span> <span class="va">tipResp</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>    <span class="va">stateResp</span><span class="op">[</span><span class="va">stateResp</span> <span class="op">&gt;</span> <span class="va">resp</span> <span class="op">&amp;</span> </span>
+<span>    <span class="va">stateResp</span> <span class="op">-</span> <span class="va">resp</span> <span class="op">&lt;</span> <span class="fu">minE</span><span class="op">(</span><span class="op">(</span><span class="va">tipResp</span> <span class="op">-</span> <span class="va">resp</span><span class="op">)</span><span class="op">[</span><span class="va">tipResp</span> <span class="op">-</span> <span class="va">resp</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">domainStateResp</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1</span><span class="op">)</span> <span class="cn">NA</span> <span class="kw">else</span></span>
+<span>    <span class="co"># Domain with response value of stable state above 0.6 is always forest</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">domainStateResp</span> <span class="op">&gt;</span> <span class="fl">0.6</span><span class="op">)</span> <span class="fl">1</span> <span class="kw">else</span> <span class="fl">0</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">domainForest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mapply.html" class="external-link">mapply</a></span><span class="op">(</span><span class="va">isDomainForest</span>, <span class="va">pred</span><span class="op">$</span><span class="va">tipStable</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">treeCoverProp</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Visual check</span></span>
+<span><span class="fu"><a href="../reference/landscapeMixglm.html">landscapeMixglm</a></span><span class="op">(</span><span class="va">modP</span>, threshold <span class="op">=</span> <span class="fl">0.1</span>, addPoints <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">precipSt</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">treeCoverProp</span>, </span>
+<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lightgreen"</span>, <span class="st">"darkgreen"</span><span class="op">)</span><span class="op">[</span><span class="va">domainForest</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/domains-2.png" width="672"></p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Map of domains</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">x</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">y</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lightgreen"</span>, <span class="st">"darkgreen"</span><span class="op">)</span><span class="op">[</span><span class="va">domainForest</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span>, </span>
+<span>  pch <span class="op">=</span> <span class="fl">15</span>, xlab <span class="op">=</span> <span class="st">"Longitude (°)"</span>, ylab <span class="op">=</span> <span class="st">"Latitude (°)"</span>, asp <span class="op">=</span> <span class="fl">1</span>, cex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/domains-3.png" width="672"></p>
+<p>The function <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> can be also used for prediction
+by specifying the argument <code>newdata</code>. For example, we can
+predict domains for precipitation at the end of 21st century:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Future precipitation is used for domain prediction which is forest for all </span></span>
+<span><span class="co">#  values over 4000</span></span>
+<span><span class="va">datTC</span><span class="op">$</span><span class="va">precip2100</span><span class="op">[</span><span class="va">datTC</span><span class="op">$</span><span class="va">precip2100</span> <span class="op">&gt;</span> <span class="fl">4000</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">4000</span></span>
+<span></span>
+<span><span class="va">predF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">modP</span>, threshold <span class="op">=</span> <span class="fl">0.1</span>, </span>
+<span>  newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>precipSt <span class="op">=</span> <span class="fu">st</span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">precip2100</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">precip</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">domainForestF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mapply.html" class="external-link">mapply</a></span><span class="op">(</span><span class="va">isDomainForest</span>, <span class="va">predF</span><span class="op">$</span><span class="va">tipStable</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">treeCoverProp</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Map of predicted domains</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">x</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">y</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lightgreen"</span>, <span class="st">"darkgreen"</span><span class="op">)</span><span class="op">[</span><span class="va">domainForestF</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span>, </span>
+<span>  pch <span class="op">=</span> <span class="fl">15</span>, xlab <span class="op">=</span> <span class="st">"Longitude (°)"</span>, ylab <span class="op">=</span> <span class="st">"Latitude (°)"</span>, asp <span class="op">=</span> <span class="fl">1</span>, cex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/predict-1.png" width="672"></p>
+<p>We can similarly plot various resilience measures stored in
+<code>pred$obsDat</code>:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># A function to assign colors to a continuous measure</span></span>
+<span><span class="va">assignColor</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dat</span>, <span class="va">col</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">sq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">dat</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">dat</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">col</span><span class="op">)</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="va">col</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/findInterval.html" class="external-link">findInterval</a></span><span class="op">(</span><span class="va">dat</span>, <span class="va">sq</span>, all.inside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Map of resilience (potential depth)</span></span>
+<span><span class="va">potentialDepthCol</span> <span class="op">&lt;-</span> <span class="fu">assignColor</span><span class="op">(</span><span class="va">pred</span><span class="op">$</span><span class="va">obsDat</span><span class="op">$</span><span class="va">potentialDepth</span>, <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">heat.colors</a></span><span class="op">(</span><span class="fl">130</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">x</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">y</span>, col <span class="op">=</span> <span class="st">"grey"</span>, pch <span class="op">=</span> <span class="fl">15</span>, xlab <span class="op">=</span> <span class="st">"Longitude (°)"</span>, </span>
+<span>  ylab <span class="op">=</span> <span class="st">"Latitude (°)"</span>, asp <span class="op">=</span> <span class="fl">1</span>, cex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">x</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">y</span>, col <span class="op">=</span> <span class="va">potentialDepthCol</span>, pch <span class="op">=</span> <span class="fl">15</span>, cex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/resilience-1.png" width="672"></p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="stability-landscape-with-multiple-predictors">Stability landscape with multiple predictors<a class="anchor" aria-label="anchor" href="#stability-landscape-with-multiple-predictors"></a>
+</h3>
+<p>Package <em>mixglm</em> allows for specification of multiple
+predictors for each mixture component (and also for mean, precision, and
+probability). This is desirable because relevant external conditions
+(such as climate) cannot be often captured using a single predictor. The
+downside is that it increases dimensionality of the model which then
+cannot be easily visualized in 2D. To illustrate <em>mixglm</em> model
+with multiple predictors, we add temperature as a predictor to our case
+study of tree cover in South America.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">21</span><span class="op">)</span></span>
+<span><span class="va">modPT</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mixglm.html">mixglm</a></span><span class="op">(</span></span>
+<span>  stateValModels <span class="op">=</span> <span class="va">treeCoverProp</span> <span class="op">~</span> <span class="va">precipSt</span> <span class="op">+</span> <span class="va">tempSt</span>,</span>
+<span>  stateProbModels <span class="op">=</span> <span class="op">~</span> <span class="va">precipSt</span> <span class="op">+</span> <span class="va">tempSt</span>,</span>
+<span>  statePrecModels <span class="op">=</span> <span class="op">~</span> <span class="va">precipSt</span> <span class="op">+</span> <span class="va">tempSt</span>,</span>
+<span>  stateValError <span class="op">=</span> <span class="st">"beta"</span>,</span>
+<span>  inputData <span class="op">=</span> <span class="va">datTC</span>,</span>
+<span>  numStates <span class="op">=</span> <span class="va">numStates</span>,</span>
+<span>  mcmcChains <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>We can still use the 2D visualization functions <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
+and <code><a href="../reference/landscapeMixglm.html">landscapeMixglm()</a></code>. However, they show us only one
+gradient, with either the other predictor fixed to zero or (in the case
+of <code><a href="../reference/landscapeMixglm.html">landscapeMixglm()</a></code>) a specified value. Therefore, fit of
+lines to observations can be misleading. Keep in mind that we see just
+one cross-section of the stability landscape.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Fitted mixture components along temperature gradient (for precipSt == 0)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">modPT</span>, form <span class="op">=</span> <span class="va">treeCoverProp</span> <span class="op">~</span> <span class="va">tempSt</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/plot2D-1.png" width="672"></p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Stability landscape along temperature gradient (for precipSt == 0)</span></span>
+<span><span class="fu"><a href="../reference/landscapeMixglm.html">landscapeMixglm</a></span><span class="op">(</span><span class="va">modPT</span>, <span class="va">treeCoverProp</span> <span class="op">~</span> <span class="va">tempSt</span>, threshold <span class="op">=</span> <span class="fl">0.1</span>, addPoints <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/plot2D-2.png" width="672"></p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Stability lanscape along precipitation gradient (for temperature 20°C)</span></span>
+<span><span class="fu"><a href="../reference/landscapeMixglm.html">landscapeMixglm</a></span><span class="op">(</span><span class="va">modPT</span>, <span class="va">treeCoverProp</span> <span class="op">~</span> <span class="va">precipSt</span>, threshold <span class="op">=</span> <span class="fl">0.1</span>, </span>
+<span>  otherPreds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu">st</span><span class="op">(</span><span class="fl">20</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">temp</span><span class="op">)</span>, <span class="st">"tempSt"</span><span class="op">)</span>, addPoints <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/plot2D-3.png" width="672"></p>
+<p>While visualization of the stability landscape is limited, stability
+curves and resilience measures can be calculated for each observation
+(accounting for all predictors). For that, we use function
+<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">predPT</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">modPT</span>, threshold <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Stability curve for observation 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">predPT</span><span class="op">$</span><span class="va">sampledResp</span>, <span class="va">predPT</span><span class="op">$</span><span class="va">probCurves</span><span class="op">$</span><span class="va">X1</span>, type <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/curves-1.png" width="672"></p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Stable states for each observation</span></span>
+<span><span class="va">stableStates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">predPT</span><span class="op">$</span><span class="va">tipStable</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="va">resp</span><span class="op">[</span><span class="va">x</span><span class="op">$</span><span class="va">state</span> <span class="op">&gt;</span> <span class="fl">0.5</span> <span class="op">&amp;</span> <span class="va">x</span><span class="op">$</span><span class="va">catSt</span> <span class="op">&gt;</span> <span class="fl">0.5</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co"># Number of stable state</span></span>
+<span><span class="va">nStableStates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">stableStates</span>, <span class="va">length</span>, FUN.VALUE <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">nStableStates</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 2</span></span>
+<span></span>
+<span><span class="co"># Observations with alternative stable states (red)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">precip</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">temp</span>, xlab <span class="op">=</span> <span class="st">"Precipitation (mm/yr)"</span>, ylab <span class="op">=</span> <span class="st">"Temperature (°C)"</span>,</span>
+<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grey"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">[</span><span class="va">nStableStates</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/curves-2.png" width="672"></p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">precip</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">treeCover</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grey"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">[</span><span class="va">nStableStates</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/curves-3.png" width="672"></p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">temp</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">treeCover</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grey"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">[</span><span class="va">nStableStates</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/curves-4.png" width="672"></p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Map of resilience (potential depth)</span></span>
+<span><span class="va">potentialDepthPTCol</span> <span class="op">&lt;-</span> <span class="fu">assignColor</span><span class="op">(</span><span class="va">predPT</span><span class="op">$</span><span class="va">obsDat</span><span class="op">$</span><span class="va">potentialDepth</span>, <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">heat.colors</a></span><span class="op">(</span><span class="fl">130</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">x</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">y</span>, col <span class="op">=</span> <span class="st">"grey"</span>, pch <span class="op">=</span> <span class="fl">15</span>, xlab <span class="op">=</span> <span class="st">"Longitude (°)"</span>, </span>
+<span>  ylab <span class="op">=</span> <span class="st">"Latitude (°)"</span>, asp <span class="op">=</span> <span class="fl">1</span>, cex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">x</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">y</span>, col <span class="op">=</span> <span class="va">potentialDepthPTCol</span>, pch <span class="op">=</span> <span class="fl">15</span>, cex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/curves-5.png" width="672"></p>
+<div class="section level4">
+<h4 id="correlation-of-predictors">Correlation of predictors<a class="anchor" aria-label="anchor" href="#correlation-of-predictors"></a>
+</h4>
+<p>In this case study the predictors are not highly correlated (Pearson
+correlation coefficient is 0.46). However, in many ecological studies,
+high correlation among potential predictors is common. We can expect
+<em>mixglm</em> to behave similarly to other regression models when used
+with correlated predictors. Estimates of their effects will not be
+reliable, MCMC chains might not converge well unless regularized using
+informative priors. The overall stability landscape would be affected
+less than, for example, predictions for new data, which would be
+unreliable. Generally, we recommend avoiding highly correlated
+predictors when possible (or making sure that the results are not
+affected by this correlation).</p>
+</div>
+<div class="section level4">
+<h4 id="absence-of-alternative-stable-states">Absence of alternative stable states<a class="anchor" aria-label="anchor" href="#absence-of-alternative-stable-states"></a>
+</h4>
+<p>In a large part of South America, we have not found any alternative
+stable states along precipitation and temperature gradients. This will
+be the case for many systems with some having only one stable state of
+its ecosystem state variable along the whole predictor gradient.
+Although some measures of resilience are not defined for these areas or
+cases (for example, distance to the closest tipping point),
+<em>mixglm</em> provides other measures of ecological resilience which
+can be computed and thus used to characterize the state of the
+ecosystem.</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Map of resilience (distance to stable state)</span></span>
+<span><span class="va">distStatePTCol</span> <span class="op">&lt;-</span> <span class="fu">assignColor</span><span class="op">(</span><span class="va">predPT</span><span class="op">$</span><span class="va">obsDat</span><span class="op">$</span><span class="va">distToState</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">heat.colors</a></span><span class="op">(</span><span class="fl">130</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="co"># High distance to state is red</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">x</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">y</span>, col <span class="op">=</span> <span class="st">"grey"</span>, pch <span class="op">=</span> <span class="fl">15</span>, xlab <span class="op">=</span> <span class="st">"Longitude (°)"</span>, </span>
+<span>  ylab <span class="op">=</span> <span class="st">"Latitude (°)"</span>, asp <span class="op">=</span> <span class="fl">1</span>, cex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">x</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">y</span>, col <span class="op">=</span> <span class="va">distStatePTCol</span>, pch <span class="op">=</span> <span class="fl">15</span>, cex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/oneState-1.png" width="672"></p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Stable state tree cover </span></span>
+<span><span class="va">stateResp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">predPT</span><span class="op">$</span><span class="va">tipStable</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="va">resp</span><span class="op">[</span><span class="va">x</span><span class="op">$</span><span class="va">state</span> <span class="op">&gt;</span> <span class="fl">0.5</span> <span class="op">&amp;</span> <span class="va">x</span><span class="op">$</span><span class="va">catSt</span> <span class="op">&gt;</span> <span class="fl">0.5</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">tipResp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">predPT</span><span class="op">$</span><span class="va">tipStable</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> </span>
+<span>  <span class="op">{</span><span class="va">out</span> <span class="op">&lt;-</span> <span class="va">x</span><span class="op">$</span><span class="va">resp</span><span class="op">[</span><span class="va">x</span><span class="op">$</span><span class="va">state</span> <span class="op">&lt;</span> <span class="fl">0.5</span> <span class="op">&amp;</span> <span class="va">x</span><span class="op">$</span><span class="va">catSt</span> <span class="op">&gt;</span> <span class="fl">0.5</span><span class="op">]</span>; <span class="va">out</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">]</span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co"># Function to select the state in which domain is the observation (from 2 states)</span></span>
+<span><span class="va">getState</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">tip</span>, <span class="va">resp</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">stateDist</span> <span class="op">&lt;-</span> <span class="va">state</span> <span class="op">-</span> <span class="va">resp</span></span>
+<span>  <span class="va">signState</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">stateDist</span><span class="op">)</span></span>
+<span>  <span class="va">signTip</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">tip</span> <span class="op">-</span> <span class="va">resp</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">signState</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|</span> <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">signState</span> <span class="op">==</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op">|</span> <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">signState</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span> </span>
+<span>    <span class="va">state</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">stateDist</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">stateDist</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="kw">else</span> <span class="va">state</span><span class="op">[</span><span class="va">signState</span> <span class="op">!=</span> <span class="va">signTip</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">stateRespObs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mapply.html" class="external-link">mapply</a></span><span class="op">(</span><span class="va">getState</span>, <span class="va">stateResp</span>, <span class="va">tipResp</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">treeCoverProp</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Map of stable state tree cover</span></span>
+<span><span class="va">statePTCol</span> <span class="op">&lt;-</span> <span class="fu">assignColor</span><span class="op">(</span><span class="va">stateRespObs</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">terrain.colors</a></span><span class="op">(</span><span class="fl">130</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="co"># High tree cover is green</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">datTC</span><span class="op">$</span><span class="va">x</span>, <span class="va">datTC</span><span class="op">$</span><span class="va">y</span>, col <span class="op">=</span> <span class="va">statePTCol</span>, pch <span class="op">=</span> <span class="fl">15</span>, xlab <span class="op">=</span> <span class="st">"Longitude (°)"</span>, </span>
+<span>  ylab <span class="op">=</span> <span class="st">"Latitude (°)"</span>, asp <span class="op">=</span> <span class="fl">1</span>, cex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="caseStudy_files/figure-html/oneState-2.png" width="672"></p>
+<p><br></p>
+</div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<p><a href="#bFlores">↑</a> <a name="refFlores"></a>Flores, B.M.,
+Montoya, E., Sakschewski, B. et al. 2024. Critical transitions in the
+Amazon forest system. <em>Nature</em> 626, 555–564. <a href="https://doi.org/10.1038/s41586-023-06970-0" class="external-link">doi.org/10.1038/s41586-023-06970-0</a><br><br><a href="#bHirota">↑</a> <a name="refHirota"></a>Hirota, M., M.
+Holmgren, E. H. van Nes, and M. Scheffer. 2011. Global resilience of
+tropical forest and savanna to critical transitions. <em>Science</em>
+334: 232–235. <a href="https://doi.org/10.1126/science.1210657" class="external-link">doi.org/10.1126/science.1210657</a><br><br><a href="#bWatanabe">↑</a> <a name="refWatanabe"></a>Watanabe, S. 2013.
+A widely applicable bayesian information criterion. <em>Journal of
+Machine Learning Research</em> 14: 867–897. <a href="https://jmlr.org/papers/v14/watanabe13a.html" class="external-link">Link</a></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
